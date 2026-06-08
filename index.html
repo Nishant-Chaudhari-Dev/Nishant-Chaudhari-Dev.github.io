@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nishant Chaudhari — AI Systems Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #0b1220;
+      --navy2:  #111a2e;
+      --teal:   #0ee6d0;
+      --teal2:  #0aafa0;
+      --accent: #4af0e2;
+      --white:  #f0f4f8;
+      --muted:  #7a90a8;
+      --card:   rgba(14,230,208,.06);
+      --border: rgba(14,230,208,.18);
+      --font-head: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--teal); color: var(--navy); }
+
+    /* ── CANVAS BACKGROUND ───────────────────────────────────────── */
+    #bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── GRID OVERLAY ────────────────────────────────────────────── */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(14,230,208,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14,230,208,.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ── NAVBAR ──────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(11,18,32,.7);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-head);
+      font-weight: 800; font-size: 1.1rem;
+      color: var(--teal); letter-spacing: .05em;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+
+    /* ── WRAPPER ─────────────────────────────────────────────────── */
+    .wrapper { position: relative; z-index: 1; }
+
+    /* ── HERO ────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 8rem 4rem 4rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 1.2rem;
+      opacity: 0; animation: fadeUp .6s .2s forwards;
+    }
+    .hero-name {
+      font-family: var(--font-head);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800; line-height: 1.05;
+      color: var(--white);
+      opacity: 0; animation: fadeUp .7s .4s forwards;
+    }
+    .hero-name span { color: var(--teal); }
+    .hero-tagline {
+      margin-top: 1.4rem;
+      font-size: clamp(.85rem, 1.4vw, 1rem);
+      color: var(--muted); max-width: 560px;
+      opacity: 0; animation: fadeUp .7s .7s forwards;
+    }
+    .hero-tagline .typed { color: var(--accent); }
+    .cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: var(--teal); margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .8s step-end infinite;
+    }
+    .hero-cta {
+      margin-top: 2.8rem; display: flex; gap: 1.2rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp .7s 1s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .75rem 1.8rem;
+      font-family: var(--font-mono); font-size: .78rem;
+      letter-spacing: .08em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: all .25s;
+    }
+    .btn-primary {
+      background: var(--teal); color: var(--navy); font-weight: 700;
+      box-shadow: 0 0 24px rgba(14,230,208,.35);
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+      box-shadow: 0 0 40px rgba(14,230,208,.6);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      border: 1px solid var(--border); color: var(--muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--teal); color: var(--teal);
+      transform: translateY(-2px);
+    }
+    .hero-scroll {
+      margin-top: 5rem;
+      display: flex; align-items: center; gap: .8rem;
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0; animation: fadeUp .7s 1.3s forwards;
+    }
+    .scroll-line {
+      width: 40px; height: 1px; background: var(--border);
+    }
+
+    /* ── PHOTO PLACEHOLDER ───────────────────────────────────────── */
+    .hero-photo-area {
+      position: absolute; right: 4rem; top: 50%;
+      transform: translateY(-50%);
+      width: 260px; height: 320px;
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: .8rem;
+      color: var(--muted); font-size: .72rem;
+      letter-spacing: .1em; text-align: center;
+      background: var(--card);
+      opacity: 0; animation: fadeUp .7s .9s forwards;
+    }
+    .hero-photo-area::before {
+      content: '[ PHOTO ]';
+      font-size: 1.5rem; color: var(--border);
+    }
+    .photo-note { font-size: .65rem; color: var(--border); padding: 0 1rem; }
+
+    /* ── SECTION BASE ────────────────────────────────────────────── */
+    section {
+      max-width: 1100px; margin: 0 auto;
+      padding: 5rem 4rem;
+    }
+    .section-label {
+      font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: .6rem;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800; color: var(--white);
+      margin-bottom: 3rem; line-height: 1.1;
+    }
+    .section-title span { color: var(--teal); }
+    .section-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, var(--teal) 0%, transparent 70%);
+      margin-bottom: 3rem;
+    }
+
+    /* reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s, transform .6s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── ABOUT ───────────────────────────────────────────────────── */
+    #about .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+      align-items: start;
+    }
+    .about-text p { color: var(--muted); margin-bottom: 1rem; line-height: 1.9; }
+    .about-text p strong { color: var(--white); }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    }
+    .stat-card {
+      border: 1px solid var(--border);
+      padding: 1.4rem;
+      background: var(--card);
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%; background: var(--teal);
+    }
+    .stat-num {
+      font-family: var(--font-head); font-size: 2rem;
+      font-weight: 800; color: var(--teal);
+    }
+    .stat-label { font-size: .68rem; letter-spacing: .1em; color: var(--muted); margin-top: .2rem; }
+
+    /* ── PROJECTS ────────────────────────────────────────────────── */
+    #projects .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      border: 1px solid var(--border);
+      padding: 2rem;
+      background: var(--card);
+      position: relative; overflow: hidden;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+      display: flex; flex-direction: column;
+    }
+    .project-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(14,230,208,.12);
+    }
+    .project-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(14,230,208,.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .project-tag {
+      font-size: .62rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: .8rem;
+    }
+    .project-title {
+      font-family: var(--font-head); font-size: 1.1rem;
+      font-weight: 700; color: var(--white);
+      margin-bottom: .8rem; line-height: 1.3;
+    }
+    .project-desc {
+      font-size: .8rem; color: var(--muted);
+      line-height: 1.8; flex: 1;
+    }
+    .project-stack {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      margin-top: 1.4rem;
+    }
+    .stack-chip {
+      font-size: .62rem; letter-spacing: .08em;
+      padding: .25rem .65rem;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(14,230,208,.04);
+    }
+    .project-links {
+      display: flex; gap: 1rem; margin-top: 1.4rem;
+    }
+    .project-link {
+      font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--teal); text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color .2s;
+    }
+    .project-link:hover { border-color: var(--teal); }
+    .project-wip {
+      font-size: .62rem; letter-spacing: .14em;
+      color: var(--teal); opacity: .5;
+      margin-top: 1rem;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .wip-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* ── SKILLS ──────────────────────────────────────────────────── */
+    #skills .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-group {
+      border: 1px solid var(--border);
+      padding: 1.6rem;
+      background: var(--card);
+    }
+    .skill-group-label {
+      font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 1rem;
+    }
+    .skill-items { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .skill-item {
+      font-size: .72rem; padding: .28rem .7rem;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .skill-item:hover { border-color: var(--teal); color: var(--white); }
+
+    /* ── EXPERIENCE (timeline) ───────────────────────────────────── */
+    #experience .timeline { position: relative; padding-left: 2rem; }
+    #experience .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+    .timeline-item {
+      position: relative; margin-bottom: 2.8rem; padding-left: 1.5rem;
+    }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -2.4rem; top: .4rem;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 10px var(--teal);
+    }
+    .timeline-date {
+      font-size: .65rem; letter-spacing: .14em; color: var(--teal);
+      margin-bottom: .4rem;
+    }
+    .timeline-title {
+      font-family: var(--font-head); font-size: 1rem;
+      font-weight: 700; color: var(--white); margin-bottom: .2rem;
+    }
+    .timeline-org { font-size: .75rem; color: var(--muted); margin-bottom: .7rem; }
+    .timeline-desc { font-size: .8rem; color: var(--muted); line-height: 1.8; }
+
+    /* ── CONTACT ─────────────────────────────────────────────────── */
+    #contact {
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .contact-email {
+      font-family: var(--font-head); font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 800; color: var(--teal);
+      text-decoration: none; letter-spacing: .04em;
+      border-bottom: 2px solid transparent;
+      transition: border-color .2s;
+    }
+    .contact-email:hover { border-color: var(--teal); }
+    .contact-links {
+      display: flex; justify-content: center; gap: 2rem;
+      margin-top: 2rem; flex-wrap: wrap;
+    }
+    .contact-link {
+      font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      transition: color .2s;
+    }
+    .contact-link:hover { color: var(--teal); }
+
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 2rem 4rem;
+      font-size: .65rem; letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.7); }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      #hero { padding: 7rem 1.5rem 3rem; }
+      .hero-photo-area { display: none; }
+      section { padding: 3.5rem 1.5rem; }
+      #about .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      footer { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particle Canvas -->
+<canvas id="bg"></canvas>
+<div class="grid-overlay"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">NDC</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="wrapper">
+
+  <!-- ── HERO ── -->
+  <section id="hero" style="position:relative;">
+    <p class="hero-eyebrow">AI Systems Engineer · Boston, MA</p>
+    <h1 class="hero-name">Nishant<br /><span>Chaudhari</span></h1>
+    <p class="hero-tagline">
+      <span class="typed" id="typed"></span><span class="cursor"></span>
+    </p>
+    <div class="hero-cta">
+      <a href="Nishant_Chaudhari_CV.docx" class="btn btn-primary" download>
+        ↓ Download CV
+      </a>
+      <a href="#projects" class="btn btn-outline">View Projects →</a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll to explore
+    </div>
+    <!-- PHOTO PLACEHOLDER — replace src with your actual photo path -->
+    <div class="hero-photo-area">
+      <span class="photo-note">Replace this div with:<br/>&lt;img src="photo.jpg" /&gt;</span>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ── -->
+  <section id="about">
+    <p class="section-label reveal">Who I am</p>
+    <h2 class="section-title reveal">Building agents that<br /><span>actually work.</span></h2>
+    <div class="section-divider reveal"></div>
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <p>
+          I'm a <strong>CS engineer</strong> pursuing an M.S. in Applied AI at
+          <strong>Northeastern University, Boston</strong>. My background spans
+          multi-agent reinforcement learning, autonomous robotics, and applied ML —
+          with a strong bias toward systems that ship and hold up under real conditions.
+        </p>
+        <p>
+          I care about the hard parts: <strong>evals, failure modes, deployment</strong>.
+          Not just getting an agent to demo, but understanding why it breaks and fixing
+          the scaffold around it.
+        </p>
+        <p>
+          Currently building <strong>AgentSWE</strong> — a failure-mode-targeted scaffold
+          for code agents evaluated on SWE-bench Pro. Previously worked with OpenEye
+          Scientific Software / Cadence and competed at the Red Hat Hackathon 2026.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-num">5+</div>
+          <div class="stat-label">Research & Industry Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">2×</div>
+          <div class="stat-label">Industry Partners (OpenEye / Red Hat)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">MARL</div>
+          <div class="stat-label">Multi-Agent RL · Swarm Systems</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">RAG</div>
+          <div class="stat-label">LLM Pipelines · Vector Search</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <p class="section-label reveal">What I've built</p>
+    <h2 class="section-title reveal">Projects</h2>
+    <div class="section-divider reveal"></div>
+    <div class="projects-grid">
+
+      <!-- AgentSWE WIP -->
+      <div class="project-card reveal">
+        <p class="project-tag">In Progress · 2026</p>
+        <h3 class="project-title">AgentSWE — Failure-Mode-Targeted Scaffold</h3>
+        <p class="project-desc">
+          Novel code-agent scaffold targeting the top failure modes on SWE-bench Pro.
+          Core thesis: scaffold improvements on cheaper models (Claude Haiku) approaching
+          expensive model baselines — a cost-Pareto story for real deployment.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">Python</span>
+          <span class="stack-chip">Claude API</span>
+          <span class="stack-chip">SWE-bench Pro</span>
+          <span class="stack-chip">Evals</span>
+        </div>
+        <p class="project-wip"><span class="wip-dot"></span> Actively building · ETA Nov 2026</p>
+      </div>
+
+      <!-- TenderMind -->
+      <div class="project-card reveal">
+        <p class="project-tag">Red Hat Hackathon · 2026</p>
+        <h3 class="project-title">TenderMind — Local Multi-Agent Tender Evaluator</h3>
+        <p class="project-desc">
+          Fully air-gapped multi-agent pipeline (Podman AI Lab + IBM Granite 4.0) that
+          scores, ranks, and generates PDF reports for vendor tender submissions. 14 LLM
+          calls across Evaluator + Ranker agents — zero cloud dependency, zero data egress.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">Python</span>
+          <span class="stack-chip">Podman AI Lab</span>
+          <span class="stack-chip">IBM Granite</span>
+          <span class="stack-chip">MCP</span>
+          <span class="stack-chip">Flask</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Nishant-Chaudhari-Dev/TenderEvaluator-RedhatHackathon" class="project-link" target="_blank">GitHub →</a>
+        </div>
+      </div>
+
+      <!-- OmegaTK RAG -->
+      <div class="project-card reveal">
+        <p class="project-tag">OpenEye / Cadence · 2025</p>
+        <h3 class="project-title">OmegaTK RAG Coding Assistant</h3>
+        <p class="project-desc">
+          Retrieval-augmented coding assistant for the OmegaTK Python toolkit. FAISS
+          vector index over official docs, history-aware MMR retrieval, and Gemini 2.5 Flash
+          for generation. Routes clear API requests, vague inputs, and multi-turn follow-ups.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">Python</span>
+          <span class="stack-chip">FAISS</span>
+          <span class="stack-chip">Gemini 2.5</span>
+          <span class="stack-chip">RAG</span>
+          <span class="stack-chip">Streamlit</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Nishant-Chaudhari-Dev/ChatBot-Application" class="project-link" target="_blank">GitHub →</a>
+        </div>
+      </div>
+
+      <!-- Antiviral -->
+      <div class="project-card reveal">
+        <p class="project-tag">OpenEye / Cadence · 2025</p>
+        <h3 class="project-title">Antiviral Potency Prediction</h3>
+        <p class="project-desc">
+          End-to-end prediction pipeline for pIC50 potency against SARS-CoV-2 and
+          MERS-CoV main proteases (ASAP Discovery dataset). Reverse-engineered
+          OpenEye's proprietary .oez binary format via libzstd — no license required.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">Python</span>
+          <span class="stack-chip">RDKit</span>
+          <span class="stack-chip">XGBoost</span>
+          <span class="stack-chip">scikit-learn</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Nishant-Chaudhari-Dev/antiviral-potency-prediction" class="project-link" target="_blank">GitHub →</a>
+        </div>
+      </div>
+
+      <!-- Swarm Robotics -->
+      <div class="project-card reveal">
+        <p class="project-tag">MOON Lab, IISER · Oct 2024–Present</p>
+        <h3 class="project-title">Swarm Robotics — Multi-Agent RL</h3>
+        <p class="project-desc">
+          MARL algorithms in PyTorch for cooperative swarm decision-making — 20%
+          improvement in collective exploration efficiency. Validated in ROS2 / Gazebo
+          Garden, then deployed on NVIDIA Jetson hardware.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">PyTorch</span>
+          <span class="stack-chip">ROS2</span>
+          <span class="stack-chip">Gazebo</span>
+          <span class="stack-chip">NVIDIA Jetson</span>
+          <span class="stack-chip">MARL</span>
+        </div>
+      </div>
+
+      <!-- Cleaning Robot -->
+      <div class="project-card reveal">
+        <p class="project-tag">DUDE Lab, IISER · 2023–2024</p>
+        <h3 class="project-title">Autonomous Cleaning Robot</h3>
+        <p class="project-desc">
+          95% accurate object classification (TensorFlow + OpenCV) on-device.
+          Python navigation algorithms with LiDAR + ultrasonic fusion for collision
+          avoidance. Mechanical design in SolidWorks — 40% efficiency improvement.
+        </p>
+        <div class="project-stack">
+          <span class="stack-chip">TensorFlow</span>
+          <span class="stack-chip">OpenCV</span>
+          <span class="stack-chip">Python</span>
+          <span class="stack-chip">LiDAR</span>
+          <span class="stack-chip">SolidWorks</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SKILLS ── -->
+  <section id="skills">
+    <p class="section-label reveal">What I work with</p>
+    <h2 class="section-title reveal">Skills</h2>
+    <div class="section-divider reveal"></div>
+    <div class="skills-grid reveal">
+      <div class="skill-group">
+        <p class="skill-group-label">Languages</p>
+        <div class="skill-items">
+          <span class="skill-item">Python</span>
+          <span class="skill-item">C / C++</span>
+          <span class="skill-item">MATLAB</span>
+          <span class="skill-item">Mathematica</span>
+          <span class="skill-item">R</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">AI / ML</p>
+        <div class="skill-items">
+          <span class="skill-item">PyTorch</span>
+          <span class="skill-item">TensorFlow</span>
+          <span class="skill-item">MARL</span>
+          <span class="skill-item">RAG</span>
+          <span class="skill-item">FAISS</span>
+          <span class="skill-item">LLM APIs</span>
+          <span class="skill-item">OpenCV</span>
+          <span class="skill-item">scikit-learn</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">Robotics</p>
+        <div class="skill-items">
+          <span class="skill-item">ROS / ROS2</span>
+          <span class="skill-item">Gazebo</span>
+          <span class="skill-item">LiDAR</span>
+          <span class="skill-item">NVIDIA Jetson</span>
+          <span class="skill-item">Pixhawk</span>
+          <span class="skill-item">IoT</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">Engineering & Tools</p>
+        <div class="skill-items">
+          <span class="skill-item">SolidWorks</span>
+          <span class="skill-item">Fusion 360</span>
+          <span class="skill-item">COMSOL</span>
+          <span class="skill-item">Podman</span>
+          <span class="skill-item">Streamlit</span>
+          <span class="skill-item">Flask</span>
+          <span class="skill-item">Git</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXPERIENCE ── -->
+  <section id="experience">
+    <p class="section-label reveal">Where I've been</p>
+    <h2 class="section-title reveal">Experience</h2>
+    <div class="section-divider reveal"></div>
+    <div class="timeline reveal">
+
+      <div class="timeline-item">
+        <p class="timeline-date">2026 – Present</p>
+        <h3 class="timeline-title">M.S. Applied AI</h3>
+        <p class="timeline-org">Northeastern University, Boston MA</p>
+        <p class="timeline-desc">Focused on AI agents, evals, and failure-mode analysis. Member of Claude Builder Club.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-date">2026</p>
+        <h3 class="timeline-title">Red Hat Hackathon — TenderMind</h3>
+        <p class="timeline-org">Build AI That Runs on Your Machine</p>
+        <p class="timeline-desc">Built a fully local multi-agent tender evaluation system with zero cloud dependency.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-date">2025</p>
+        <h3 class="timeline-title">Industry CPS Projects</h3>
+        <p class="timeline-org">OpenEye Scientific Software / Cadence</p>
+        <p class="timeline-desc">RAG coding assistant (OmegaTK) and antiviral potency ML pipeline — ~4 months each.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-date">Oct 2024 – Present</p>
+        <h3 class="timeline-title">Multi-Agent RL Researcher</h3>
+        <p class="timeline-org">MOON Lab, IISER Bhopal</p>
+        <p class="timeline-desc">MARL for swarm robotics. 20% exploration efficiency gain. ROS2 + NVIDIA Jetson deployment.</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="timeline-date">2021 – 2025</p>
+        <h3 class="timeline-title">B.S. Electrical Engineering & Computer Science</h3>
+        <p class="timeline-org">IISER Bhopal, India</p>
+        <p class="timeline-desc">Robotics research, autonomous systems, swarm intelligence, sensor simulation.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CONTACT ── -->
+  <section id="contact">
+    <p class="section-label reveal">Get in touch</p>
+    <h2 class="section-title reveal">Let's talk.</h2>
+    <div class="section-divider reveal"></div>
+    <div class="reveal">
+      <a href="mailto:nishant.chaudhari.dev@gmail.com" class="contact-email">
+        nishant.chaudhari.dev@gmail.com
+      </a>
+      <div class="contact-links">
+        <a href="https://www.linkedin.com/in/nishant-chaudhari-24143529" class="contact-link" target="_blank">LinkedIn</a>
+        <a href="https://github.com/Nishant-Chaudhari-Dev" class="contact-link" target="_blank">GitHub</a>
+        <a href="Nishant_Chaudhari_CV.docx" class="contact-link" download>Download CV</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p>© 2026 Nishant Dipak Chaudhari · Built with HTML/CSS/JS · Hosted on GitHub Pages</p>
+</footer>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+<script>
+/* ── PARTICLE CANVAS ── */
+(function() {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  const N = 80;
+  const TEAL = '14,230,208';
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < N; i++) {
+    particles.push({
+      x: Math.random() * 1e4,
+      y: Math.random() * 1e4,
+      vx: (Math.random() - .5) * .3,
+      vy: (Math.random() - .5) * .3,
+      r: Math.random() * 1.5 + .5,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // update
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    }
+    // lines
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 140) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${TEAL},${(1 - d/140) * .15})`;
+          ctx.lineWidth = .5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // dots
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${TEAL},.5)`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── TYPEWRITER ── */
+(function() {
+  const phrases = [
+    'Engineer who builds agents that actually work.',
+    'Multi-Agent RL · RAG Pipelines · Evals.',
+    'Failure modes found. Scaffolds improved.',
+    'Currently building AgentSWE on SWE-bench Pro.',
+  ];
+  let pi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typed');
+
+  function tick() {
+    const phrase = phrases[pi];
+    if (!deleting) {
+      el.textContent = phrase.slice(0, ++ci);
+      if (ci === phrase.length) {
+        deleting = true;
+        setTimeout(tick, 2200); return;
+      }
+      setTimeout(tick, 45);
+    } else {
+      el.textContent = phrase.slice(0, --ci);
+      if (ci === 0) {
+        deleting = false;
+        pi = (pi + 1) % phrases.length;
+        setTimeout(tick, 400); return;
+      }
+      setTimeout(tick, 22);
+    }
+  }
+  setTimeout(tick, 1400);
+})();
+
+/* ── SCROLL REVEAL ── */
+(function() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // stagger children if project-card
+      }
+    });
+  }, { threshold: .12 });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+    obs.observe(el);
+  });
+
+  // stagger project cards individually
+  document.querySelectorAll('.project-card').forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.transitionDelay = `${i * 0.08}s`;
+    obs.observe(el);
+  });
+})();
+</script>
+</body>
+</html>
+HTMLEOF
