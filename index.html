@@ -57,6 +57,21 @@ code{font-family:var(--font-mono)}
   background:radial-gradient(ellipse at 50% 30%,transparent 45%,rgba(4,6,11,.75) 100%);
 }
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+
+/* ambient neural-brain hologram */
+#brainBg{position:fixed;top:96px;right:22px;width:210px;z-index:0;pointer-events:none;display:none}
+@media (min-width:1240px){#brainBg{display:block}}
+.brain-line{stroke:var(--signal);stroke-opacity:.2;stroke-width:1;fill:none}
+.brain-node{fill:var(--signal);opacity:.4}
+@media (prefers-reduced-motion:no-preference){
+  .brain-node{animation:neuron-flash 4s ease-in-out infinite}
+}
+@keyframes neuron-flash{0%,100%{opacity:.22}50%{opacity:.75}}
+.brain-stem{stroke:var(--signal);stroke-opacity:.28;stroke-width:1.4;fill:none}
+.brain-chip{stroke:var(--signal-line-strong);stroke-width:1.1;fill:none;opacity:.5}
+.brain-chip-pin{stroke:var(--signal-line-strong);stroke-width:1;opacity:.45}
+.brain-pulse{fill:var(--signal);filter:drop-shadow(0 0 3px var(--signal))}
+@media (prefers-reduced-motion:reduce){.brain-pulses{display:none}}
 .frame-corner{position:fixed;width:26px;height:26px;border-color:var(--signal-line-strong);z-index:60;pointer-events:none;opacity:.6}
 .frame-corner.tl{top:14px;left:14px;border-top:1.5px solid;border-left:1.5px solid}
 .frame-corner.tr{top:14px;right:14px;border-top:1.5px solid;border-right:1.5px solid}
@@ -240,9 +255,9 @@ section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative
   background:linear-gradient(90deg,transparent,rgba(69,216,255,.14),transparent);transition:left .6s ease;z-index:1}
 .panel:hover .scan{left:110%}
 
-/* one-shot power-on reveal */
+/* repeating power-on reveal — replays each time an element (re)enters view */
 @media (prefers-reduced-motion:no-preference){
-  .reveal{opacity:0;transform:translateY(10px)}
+  .reveal{opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
   .reveal.on{animation:power-on .5s ease forwards}
 }
 @keyframes power-on{
@@ -373,6 +388,79 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 <div class="grid-bg" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 <canvas id="stars" aria-hidden="true"></canvas>
+<svg id="brainBg" viewBox="0 0 220 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <g class="brain-mesh">
+    <line class="brain-line" x1="60" y1="40" x2="40" y2="70"/>
+    <line class="brain-line" x1="60" y1="40" x2="90" y2="30"/>
+    <line class="brain-line" x1="40" y1="70" x2="55" y2="105"/>
+    <line class="brain-line" x1="40" y1="70" x2="85" y2="100"/>
+    <line class="brain-line" x1="55" y1="105" x2="85" y2="100"/>
+    <line class="brain-line" x1="55" y1="105" x2="75" y2="130"/>
+    <line class="brain-line" x1="90" y1="30" x2="100" y2="65"/>
+    <line class="brain-line" x1="90" y1="30" x2="130" y2="35"/>
+    <line class="brain-line" x1="100" y1="65" x2="85" y2="100"/>
+    <line class="brain-line" x1="100" y1="65" x2="145" y2="70"/>
+    <line class="brain-line" x1="100" y1="65" x2="125" y2="105"/>
+    <line class="brain-line" x1="85" y1="100" x2="125" y2="105"/>
+    <line class="brain-line" x1="85" y1="100" x2="75" y2="130"/>
+    <line class="brain-line" x1="130" y1="35" x2="145" y2="70"/>
+    <line class="brain-line" x1="130" y1="35" x2="170" y2="50"/>
+    <line class="brain-line" x1="145" y1="70" x2="125" y2="105"/>
+    <line class="brain-line" x1="145" y1="70" x2="180" y2="85"/>
+    <line class="brain-line" x1="125" y1="105" x2="160" y2="115"/>
+    <line class="brain-line" x1="125" y1="105" x2="110" y2="125"/>
+    <line class="brain-line" x1="170" y1="50" x2="180" y2="85"/>
+    <line class="brain-line" x1="180" y1="85" x2="160" y2="115"/>
+    <line class="brain-line" x1="160" y1="115" x2="110" y2="125"/>
+    <line class="brain-line" x1="110" y1="125" x2="75" y2="130"/>
+  </g>
+  <g class="brain-nodes">
+    <circle class="brain-node" cx="60" cy="40" r="2.4" style="animation-delay:.2s"/>
+    <circle class="brain-node" cx="40" cy="70" r="2.4" style="animation-delay:.9s"/>
+    <circle class="brain-node" cx="55" cy="105" r="2.4" style="animation-delay:1.6s"/>
+    <circle class="brain-node" cx="90" cy="30" r="2.4" style="animation-delay:.5s"/>
+    <circle class="brain-node" cx="100" cy="65" r="2.6" style="animation-delay:1.1s"/>
+    <circle class="brain-node" cx="85" cy="100" r="2.4" style="animation-delay:1.9s"/>
+    <circle class="brain-node" cx="130" cy="35" r="2.4" style="animation-delay:.3s"/>
+    <circle class="brain-node" cx="145" cy="70" r="2.4" style="animation-delay:1.4s"/>
+    <circle class="brain-node" cx="125" cy="105" r="2.4" style="animation-delay:.7s"/>
+    <circle class="brain-node" cx="170" cy="50" r="2.4" style="animation-delay:2.1s"/>
+    <circle class="brain-node" cx="180" cy="85" r="2.4" style="animation-delay:1.3s"/>
+    <circle class="brain-node" cx="160" cy="115" r="2.4" style="animation-delay:.6s"/>
+    <circle class="brain-node" cx="110" cy="125" r="2.4" style="animation-delay:1.7s"/>
+    <circle class="brain-node" cx="75" cy="130" r="2.4" style="animation-delay:2.4s"/>
+  </g>
+  <path class="brain-stem" d="M110,132 C104,220 116,320 110,420"/>
+  <g>
+    <rect class="brain-chip" x="85" y="420" width="50" height="34" rx="2"/>
+    <line class="brain-chip-pin" x1="85" y1="428" x2="76" y2="428"/>
+    <line class="brain-chip-pin" x1="85" y1="438" x2="76" y2="438"/>
+    <line class="brain-chip-pin" x1="85" y1="448" x2="76" y2="448"/>
+    <line class="brain-chip-pin" x1="135" y1="428" x2="144" y2="428"/>
+    <line class="brain-chip-pin" x1="135" y1="438" x2="144" y2="438"/>
+    <line class="brain-chip-pin" x1="135" y1="448" x2="144" y2="448"/>
+    <line class="brain-chip-pin" x1="95" y1="454" x2="95" y2="463"/>
+    <line class="brain-chip-pin" x1="110" y1="454" x2="110" y2="463"/>
+    <line class="brain-chip-pin" x1="125" y1="454" x2="125" y2="463"/>
+  </g>
+  <g class="brain-pulses">
+    <circle class="brain-pulse" r="2.2">
+      <animateMotion path="M60,40 L90,30" dur="2.6s" begin="0s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="brain-pulse" r="2.2">
+      <animateMotion path="M100,65 L145,70" dur="3.1s" begin=".8s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="brain-pulse" r="2.2">
+      <animateMotion path="M85,100 L125,105" dur="2.8s" begin="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="brain-pulse" r="2.2">
+      <animateMotion path="M130,35 L170,50" dur="3.4s" begin=".3s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="brain-pulse" r="2.4">
+      <animateMotion path="M110,132 C104,220 116,320 110,420" dur="3.6s" begin="0s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
 <div class="frame-corner tl" aria-hidden="true"></div>
 <div class="frame-corner tr" aria-hidden="true"></div>
 <div class="frame-corner bl" aria-hidden="true"></div>
@@ -1046,7 +1134,7 @@ var hudSfxEnabled=false;
   }
 })();
 
-/* ---------- one-shot power-on reveal on scroll ---------- */
+/* ---------- repeating power-on reveal — fades out of view, replays back in ---------- */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var els=document.querySelectorAll('.reveal');
@@ -1058,7 +1146,8 @@ var hudSfxEnabled=false;
     entries.forEach(function(entry){
       if(entry.isIntersecting){
         entry.target.classList.add('on');
-        io.unobserve(entry.target);
+      } else {
+        entry.target.classList.remove('on');
       }
     });
   },{threshold:.15});
