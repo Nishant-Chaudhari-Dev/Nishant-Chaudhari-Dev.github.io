@@ -59,13 +59,10 @@ code{font-family:var(--font-mono)}
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
 
 /* ambient neural-brain hologram — rotating amber point-cloud + static connector down to a chip */
-#brainBg{position:fixed;top:90px;right:20px;width:240px;z-index:0;pointer-events:none;display:none;text-align:center}
-@media (min-width:1240px){#brainBg{display:block}}
-#brainCanvas{width:240px;height:240px;display:block}
-.brain-stem-wrap{width:220px;height:160px;display:block;margin:-14px auto 0}
-.brain-stem{stroke:var(--signal);stroke-opacity:.3;stroke-width:1.4;fill:none}
-.brain-chip{stroke:var(--signal-line-strong);stroke-width:1.1;fill:none;opacity:.5}
-.brain-chip-pin{stroke:var(--signal-line-strong);stroke-width:1;opacity:.45}
+#brainBg{position:fixed;top:64px;right:14px;z-index:1;pointer-events:none;display:none}
+@media (min-width:1300px){#brainBg{display:block}}
+#brainCanvas{display:block;pointer-events:auto;cursor:grab;touch-action:none}
+#brainCanvas:active{cursor:grabbing}
 .frame-corner{position:fixed;width:26px;height:26px;border-color:var(--signal-line-strong);z-index:60;pointer-events:none;opacity:.6}
 .frame-corner.tl{top:14px;left:14px;border-top:1.5px solid;border-left:1.5px solid}
 .frame-corner.tr{top:14px;right:14px;border-top:1.5px solid;border-right:1.5px solid}
@@ -384,18 +381,6 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 <canvas id="stars" aria-hidden="true"></canvas>
 <div id="brainBg" aria-hidden="true">
   <canvas id="brainCanvas"></canvas>
-  <svg class="brain-stem-wrap" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
-    <path class="brain-stem" d="M110,2 C104,50 116,105 110,150"/>
-    <g>
-      <rect class="brain-chip" x="85" y="150" width="50" height="34" rx="2"/>
-      <line class="brain-chip-pin" x1="85" y1="158" x2="76" y2="158"/>
-      <line class="brain-chip-pin" x1="85" y1="168" x2="76" y2="168"/>
-      <line class="brain-chip-pin" x1="85" y1="178" x2="76" y2="178"/>
-      <line class="brain-chip-pin" x1="135" y1="158" x2="144" y2="158"/>
-      <line class="brain-chip-pin" x1="135" y1="168" x2="144" y2="168"/>
-      <line class="brain-chip-pin" x1="135" y1="178" x2="144" y2="178"/>
-    </g>
-  </svg>
 </div>
 <div class="frame-corner tl" aria-hidden="true"></div>
 <div class="frame-corner tr" aria-hidden="true"></div>
@@ -1129,60 +1114,103 @@ var hudSfxEnabled=false;
     }).catch(function(){});
 })();
 
-/* ---------- rotating neural-brain hologram (amber, tumbles like a globe) ---------- */
+/* ---------- neural-brain hologram — dense, brain-shaped, drag to rotate, computers at the stem ---------- */
 (function(){
   var canvas=document.getElementById('brainCanvas');
   if(!canvas) return;
   var ctx=canvas.getContext('2d');
   var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var SIZE=240;
+  var W=280,H=430;
   var dpr=window.devicePixelRatio||1;
-  canvas.width=SIZE*dpr;canvas.height=SIZE*dpr;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
   ctx.scale(dpr,dpr);
-  var cx=SIZE/2,cy=SIZE/2,focal=280,R=84;
 
-  /* points spread evenly over a sphere (fibonacci lattice), lightly jittered so it reads
-     as an organic mass rather than a perfect ball */
-  var N=52;
-  var pts=[];
-  for(var i=0;i<N;i++){
-    var yv=1-(i/(N-1))*2;
-    var rad=Math.sqrt(Math.max(0,1-yv*yv));
-    var theta=Math.PI*(1+Math.sqrt(5))*i;
-    var jitter=0.86+Math.random()*0.26;
-    pts.push({
-      ox:Math.cos(theta)*rad*jitter,
-      oy:yv*jitter*0.94,
-      oz:Math.sin(theta)*rad*jitter,
-      phase:Math.random()*Math.PI*2
-    });
-  }
+  var cx=W/2, sphereCy=140, focal=300, R=76;
 
-  /* connect each point to its nearest neighbors for a neural-mesh look */
-  function d2(a,b){var dx=a.ox-b.ox,dy=a.oy-b.oy,dz=a.oz-b.oz;return dx*dx+dy*dy+dz*dz}
-  var edges=[];
-  var seen={};
-  for(var a=0;a<pts.length;a++){
-    var order=[];
-    for(var b=0;b<pts.length;b++){ if(a!==b) order.push([d2(pts[a],pts[b]),b]); }
-    order.sort(function(p,q){return p[0]-q[0]});
-    for(var k=0;k<3;k++){
-      var bIdx=order[k][1];
-      var key=a<bIdx?a+'_'+bIdx:bIdx+'_'+a;
-      if(!seen[key]){ seen[key]=true; edges.push([a,bIdx]); }
+  /* fibonacci-sphere point shell, deformed into a brain-like blob:
+     low-frequency bump noise for gyri, a central groove for the two-hemisphere
+     look, and a squash/elongate pass for the overall silhouette */
+  function makeShell(n,radiusScale,jitterAmt,brainify){
+    var arr=[];
+    for(var i=0;i<n;i++){
+      var yv=1-(i/Math.max(1,n-1))*2;
+      var rad=Math.sqrt(Math.max(0,1-yv*yv));
+      var theta=Math.PI*(1+Math.sqrt(5))*i;
+      var ox=Math.cos(theta)*rad, oy=yv, oz=Math.sin(theta)*rad;
+      var j=1+(Math.random()-0.5)*jitterAmt;
+      ox*=j;oy*=j;oz*=j;
+      if(brainify){
+        var bump=1+0.06*Math.sin(4*ox+2*oy)+0.05*Math.cos(3*oz-oy)+0.04*Math.sin(5*oy+3*oz);
+        ox*=bump;oy*=bump;oz*=bump;
+        oy+=0.1*Math.exp(-(ox*ox)/0.05);
+        oy*=0.85; oz*=1.12;
+      }
+      arr.push({ox:ox*radiusScale,oy:oy*radiusScale,oz:oz*radiusScale,phase:Math.random()*Math.PI*2});
     }
+    return arr;
   }
 
-  var ax=0.5,ay=0.2,az=0.1;
-  var sx=0.00016,sy=0.00026,sz=0.00010;
+  var outer=makeShell(150,1,0.16,true);
+  var inner=makeShell(34,0.48,0.12,false);
+  var pts=outer.concat(inner);
+  var outerN=outer.length;
+
+  function d2(a,b){var dx=a.ox-b.ox,dy=a.oy-b.oy,dz=a.oz-b.oz;return dx*dx+dy*dy+dz*dz}
+  function meshEdges(list,k,offset){
+    var seen={},out=[];
+    for(var a=0;a<list.length;a++){
+      var order=[];
+      for(var b=0;b<list.length;b++){ if(a!==b) order.push([d2(list[a],list[b]),b]); }
+      order.sort(function(p,q){return p[0]-q[0]});
+      for(var m=0;m<k;m++){
+        var bIdx=order[m][1];
+        var key=a<bIdx?a+'_'+bIdx:bIdx+'_'+a;
+        if(!seen[key]){ seen[key]=true; out.push([a+offset,bIdx+offset]); }
+      }
+    }
+    return out;
+  }
+  var edges=meshEdges(outer,4,0).concat(meshEdges(inner,2,outerN));
+  /* dendrite-like spokes tying the inner core to the outer shell, so the
+     structure reads as one connected volume instead of two separate shells */
+  for(var s=0;s<26;s++){
+    var ii=outerN+Math.floor(Math.random()*inner.length);
+    var best=0,bestD=Infinity;
+    for(var oi=0;oi<outerN;oi++){
+      var dd=d2(pts[ii],pts[oi]);
+      if(dd<bestD){bestD=dd;best=oi;}
+    }
+    edges.push([ii,best]);
+  }
+
+  /* rotation is pointer-driven only — drag to spin, release to coast to a stop
+     (like Google Earth), otherwise it just sits still */
+  var ax=0.32, ay=0.18, velX=0, velY=0, dragging=false, lastX=0, lastY=0;
+  canvas.addEventListener('pointerdown',function(e){
+    dragging=true; lastX=e.clientX; lastY=e.clientY; velX=0; velY=0;
+    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  canvas.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    var dx=e.clientX-lastX, dy=e.clientY-lastY;
+    lastX=e.clientX; lastY=e.clientY;
+    var rdx=dx*0.006, rdy=dy*0.006;
+    ay+=rdx; ax+=rdy;
+    velX=rdx; velY=rdy;
+    if(reduced) render();
+  });
+  function endDrag(){ dragging=false; }
+  canvas.addEventListener('pointerup',endDrag);
+  canvas.addEventListener('pointercancel',endDrag);
 
   var pulses=[];
   function spawnPulse(){
     if(!edges.length) return;
     var e=edges[Math.floor(Math.random()*edges.length)];
-    pulses.push({a:e[0],b:e[1],t:0,speed:0.01+Math.random()*0.012});
+    pulses.push({a:e[0],b:e[1],t:0,speed:0.012+Math.random()*0.014});
   }
-  if(!reduced){ setInterval(function(){ if(Math.random()<0.75) spawnPulse(); },850); }
+  if(!reduced){ setInterval(function(){ if(Math.random()<0.85) spawnPulse(); },420); }
 
   function rotate(p){
     var x=p.ox,y=p.oy,z=p.oz;
@@ -1190,42 +1218,53 @@ var hudSfxEnabled=false;
     var z1=y*Math.sin(ax)+z*Math.cos(ax);
     var x2=x*Math.cos(ay)+z1*Math.sin(ay);
     var z2=-x*Math.sin(ay)+z1*Math.cos(ay);
-    var x3=x2*Math.cos(az)-y1*Math.sin(az);
-    var y3=x2*Math.sin(az)+y1*Math.cos(az);
-    return {x:x3,y:y3,z:z2};
+    return {x:x2,y:y1,z:z2};
   }
   function project(p){
     var scale=focal/(focal+p.z*R);
-    return {x:cx+p.x*R*scale,y:cy+p.y*R*scale,scale:scale,z:p.z};
+    return {x:cx+p.x*R*scale,y:sphereCy+p.y*R*scale,z:p.z,scale:scale};
   }
 
   var t=0;
-  function frame(){
+  function render(){
     t+=1;
-    if(!reduced){ ax+=sx*16; ay+=sy*16; az+=sz*16; }
-    ctx.clearRect(0,0,SIZE,SIZE);
+    if(!dragging && !reduced){
+      ax+=velX; ay+=velY;
+      velX*=0.92; velY*=0.92;
+      if(Math.abs(velX)<0.00005) velX=0;
+      if(Math.abs(velY)<0.00005) velY=0;
+    }
+    ctx.clearRect(0,0,W,H);
 
     var rot=pts.map(rotate);
     var proj=rot.map(project);
 
-    ctx.lineWidth=1;
+    /* depth-sort edges and nodes together so near structure correctly
+       overlaps far structure — this is what makes the inner core read as
+       genuinely inside the outer shell rather than just another layer */
+    var items=[];
     edges.forEach(function(e){
       var A=proj[e[0]],B=proj[e[1]];
-      var avgZ=(A.z+B.z)/2;
-      var op=0.10+0.22*((1-avgZ)/2);
-      ctx.strokeStyle='rgba(255,180,84,'+op.toFixed(3)+')';
-      ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+      items.push({type:'edge',z:(A.z+B.z)/2,A:A,B:B});
     });
+    pts.forEach(function(p,i){ items.push({type:'node',z:proj[i].z,P:proj[i],phase:p.phase}); });
+    items.sort(function(a,b){return b.z-a.z});
 
-    pts.forEach(function(p,i){
-      var P=proj[i];
-      var depthOp=0.22+0.45*((1-P.z)/2);
-      var flick=reduced?0.65:0.5+0.5*Math.sin(t*0.03+p.phase);
-      var op=Math.min(1,depthOp*(0.55+0.55*flick));
-      var r=1.5*P.scale+0.5;
-      ctx.beginPath();ctx.arc(P.x,P.y,r,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,180,84,'+op.toFixed(3)+')';
-      ctx.fill();
+    items.forEach(function(it){
+      if(it.type==='edge'){
+        var op=0.07+0.22*((1-it.z)/2);
+        ctx.strokeStyle='rgba(255,180,84,'+op.toFixed(3)+')';
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(it.A.x,it.A.y);ctx.lineTo(it.B.x,it.B.y);ctx.stroke();
+      } else {
+        var depthOp=0.18+0.5*((1-it.z)/2);
+        var flick=reduced?0.7:0.5+0.5*Math.sin(t*0.035+it.phase);
+        var op=Math.min(1,depthOp*(0.5+0.55*flick));
+        var r=1.35*it.P.scale+0.4;
+        ctx.beginPath();ctx.arc(it.P.x,it.P.y,r,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,180,84,'+op.toFixed(3)+')';
+        ctx.fill();
+      }
     });
 
     if(!reduced && pulses.length){
@@ -1234,7 +1273,7 @@ var hudSfxEnabled=false;
         var A=rot[pl.a],B=rot[pl.b];
         var lp={x:A.x+(B.x-A.x)*pl.t,y:A.y+(B.y-A.y)*pl.t,z:A.z+(B.z-A.z)*pl.t};
         var P=project(lp);
-        ctx.beginPath();ctx.arc(P.x,P.y,2,0,Math.PI*2);
+        ctx.beginPath();ctx.arc(P.x,P.y,2.1,0,Math.PI*2);
         ctx.fillStyle='rgba(255,205,130,0.95)';
         ctx.shadowColor='rgba(255,180,84,0.9)';ctx.shadowBlur=6;
         ctx.fill();ctx.shadowBlur=0;
@@ -1242,9 +1281,33 @@ var hudSfxEnabled=false;
       pulses=pulses.filter(function(pl){return pl.t<1});
     }
 
-    if(!reduced) requestAnimationFrame(frame);
+    /* spinal stem branching down into the machines it's thinking for — static,
+       drawn in fixed screen space so it never disconnects from the sphere above it */
+    var stemTop=sphereCy+R+6, branchY=stemTop+56;
+    ctx.strokeStyle='rgba(69,216,255,.34)';
+    ctx.lineWidth=1.4;
+    ctx.beginPath();
+    ctx.moveTo(cx,stemTop);
+    ctx.bezierCurveTo(cx-6,stemTop+26,cx+6,stemTop+38,cx,branchY);
+    ctx.stroke();
+    var compX=[cx-46,cx,cx+46];
+    compX.forEach(function(x){
+      ctx.beginPath();ctx.moveTo(cx,branchY);ctx.lineTo(x,branchY+20);ctx.stroke();
+    });
+    compX.forEach(function(x,idx){
+      var top=branchY+20;
+      ctx.strokeStyle='rgba(69,216,255,.5)';
+      ctx.lineWidth=1.1;
+      ctx.strokeRect(x-13,top,26,34);
+      ctx.beginPath();ctx.moveTo(x-13,top+9);ctx.lineTo(x+13,top+9);ctx.stroke();
+      var blink=reduced?0.8:0.5+0.5*Math.sin(t*0.045+idx*2.1);
+      ctx.fillStyle='rgba(255,180,84,'+(0.4+0.5*blink).toFixed(3)+')';
+      ctx.beginPath();ctx.arc(x,top+21,2,0,Math.PI*2);ctx.fill();
+    });
+
+    if(!reduced) requestAnimationFrame(render);
   }
-  frame();
+  render();
 })();
 
 /* ---------- starfield with occasional data-packet streaks ---------- */
