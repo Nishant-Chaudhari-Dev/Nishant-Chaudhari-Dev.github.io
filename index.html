@@ -3,37 +3,45 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Nishant Chaudhari — AI Systems Engineer</title>
-<meta name="description" content="Nishant Chaudhari — AI systems engineer working on multi-agent RL, LLM pipelines, and robotics."/>
+<title>Nishant Chaudhari | AI Systems Engineer</title>
+<meta name="description" content="Nishant Chaudhari, AI systems engineer: LLM agents, evals, and inference infrastructure, with undergrad research in multi-agent RL and robotics."/>
+<meta name="theme-color" content="#04060B"/>
+<script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --void:#04060B;
   --void-2:#0A1120;
-  --panel:rgba(11,19,35,0.55);
+  --panel:rgba(10,17,32,0.62);
   --ink:#EAF3FF;
   --body:#B7C4DA;
   --muted:#71809C;
   --signal:#45D8FF;
   --signal-dim:rgba(69,216,255,0.14);
-  --signal-line:rgba(69,216,255,0.28);
+  --signal-line:rgba(69,216,255,0.26);
   --signal-line-strong:rgba(69,216,255,0.55);
   --alert:#FFB454;
-  --alert-dim:rgba(255,180,84,0.16);
+  --alert-dim:rgba(255,180,84,0.18);
   --font-head:'Orbitron',sans-serif;
-  --font-body:'Inter',sans-serif;
-  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
   --max:1120px;
 }
-html{scroll-behavior:smooth;scrollbar-color:var(--signal-line-strong) var(--void);scrollbar-width:thin}
-body{
-  background:var(--void);color:var(--body);font-family:var(--font-body);
-  font-size:16px;line-height:1.65;overflow-x:hidden;position:relative;
+/* nebula glows live on the root background, so they span the whole document and scroll with it */
+html{
+  scroll-behavior:smooth;scrollbar-color:var(--signal-line-strong) var(--void);scrollbar-width:thin;
+  background:
+    radial-gradient(1100px 800px at 92% 3%,rgba(255,180,84,.075),transparent 70%),
+    radial-gradient(1200px 900px at 4% 24%,rgba(69,216,255,.06),transparent 70%),
+    radial-gradient(1000px 900px at 96% 50%,rgba(69,216,255,.05),transparent 70%),
+    radial-gradient(1100px 900px at 6% 76%,rgba(255,180,84,.05),transparent 70%),
+    radial-gradient(900px 700px at 70% 99%,rgba(69,216,255,.055),transparent 70%),
+    #04060B;
 }
+body{background:transparent;color:var(--body);font-family:var(--font-body);font-size:16px;line-height:1.65;overflow-x:hidden;position:relative}
 a{color:inherit}
 ::selection{background:var(--signal);color:var(--void)}
 :focus-visible{outline:2px solid var(--signal);outline-offset:3px}
@@ -48,21 +56,10 @@ code{font-family:var(--font-mono)}
 #scanBar{height:100%;width:0;background:var(--signal);box-shadow:0 0 8px var(--signal)}
 @media (prefers-reduced-motion:no-preference){#scanBar{transition:width .1s linear}}
 
-/* ambient layers */
-.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(var(--signal-dim) 1px,transparent 1px),linear-gradient(90deg,var(--signal-dim) 1px,transparent 1px);
-  background-size:56px 56px;opacity:.35;
-}
-.vignette{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 30%,transparent 45%,rgba(4,6,11,.75) 100%);
-}
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+/* full-page neural field: fixed canvas that draws in document space with parallax, never takes input */
+#neural{position:fixed;inset:0;z-index:0;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 52%,rgba(4,6,11,.65) 100%)}
 
-/* ambient neural-brain hologram — rotating amber point-cloud + static connector down to a chip */
-#brainBg{position:fixed;top:64px;right:14px;z-index:1;pointer-events:none;display:none}
-@media (min-width:1300px){#brainBg{display:block}}
-#brainCanvas{display:block;pointer-events:auto;cursor:grab;touch-action:none}
-#brainCanvas:active{cursor:grabbing}
 .frame-corner{position:fixed;width:26px;height:26px;border-color:var(--signal-line-strong);z-index:60;pointer-events:none;opacity:.6}
 .frame-corner.tl{top:14px;left:14px;border-top:1.5px solid;border-left:1.5px solid}
 .frame-corner.tr{top:14px;right:14px;border-top:1.5px solid;border-right:1.5px solid}
@@ -70,41 +67,30 @@ code{font-family:var(--font-mono)}
 .frame-corner.br{bottom:14px;right:14px;border-bottom:1.5px solid;border-right:1.5px solid}
 @media (max-width:760px){.frame-corner{display:none}}
 
- /* cursor coordinate readout */
-.coord-readout{position:fixed;bottom:44px;right:20px;font-family:var(--font-mono);font-size:.68rem;color:var(--muted);
-  z-index:59;pointer-events:none;letter-spacing:.05em}
+.coord-readout{position:fixed;bottom:44px;right:20px;font-family:var(--font-mono);font-size:.68rem;color:var(--muted);z-index:59;pointer-events:none;letter-spacing:.05em}
 @media (max-width:760px){.coord-readout{display:none}}
 
-/* SFX toggle */
-.sfx-btn{position:fixed;bottom:44px;left:20px;z-index:59;background:rgba(10,17,32,.7);border:1px solid var(--signal-line);
-  color:var(--muted);font-family:var(--font-mono);font-size:.68rem;padding:5px 10px;cursor:pointer;letter-spacing:.05em;
-  transition:all .15s;backdrop-filter:blur(4px)}
+.sfx-btn{position:fixed;bottom:44px;left:20px;z-index:59;background:rgba(10,17,32,.75);border:1px solid var(--signal-line);
+  color:var(--muted);font-family:var(--font-mono);font-size:.68rem;padding:5px 10px;cursor:pointer;letter-spacing:.05em;transition:all .15s;backdrop-filter:blur(4px)}
 .sfx-btn:hover{color:var(--signal);border-color:var(--signal-line-strong)}
-@media (max-width:760px){.sfx-btn{bottom:14px;left:14px}}
+@media (max-width:760px){.sfx-btn{bottom:12px;left:auto;right:12px;opacity:.7}}
 
-/* click target-lock reticle (user-triggered) */
-.lock-reticle{position:fixed;width:34px;height:34px;margin:-17px 0 0 -17px;border:1.5px solid var(--signal);
-  border-radius:50%;pointer-events:none;z-index:9997;animation:lock-pulse .5s ease-out forwards}
+.lock-reticle{position:fixed;width:34px;height:34px;margin:-17px 0 0 -17px;border:1.5px solid var(--signal);border-radius:50%;pointer-events:none;z-index:9997;animation:lock-pulse .5s ease-out forwards}
 .lock-reticle::before,.lock-reticle::after{content:'';position:absolute;background:var(--signal)}
 .lock-reticle::before{left:50%;top:-6px;width:1px;height:6px;transform:translateX(-50%)}
 .lock-reticle::after{left:50%;bottom:-6px;width:1px;height:6px;transform:translateX(-50%)}
 @keyframes lock-pulse{0%{transform:scale(.4);opacity:1;border-width:2px}100%{transform:scale(1.3);opacity:0;border-width:1px}}
 
-/* toast (CV transfer + easter egg) */
 .hud-toast{position:fixed;bottom:24px;right:24px;z-index:9996;background:var(--void-2);border:1px solid var(--signal-line-strong);
-  padding:14px 18px;font-family:var(--font-mono);font-size:.74rem;color:var(--signal);opacity:0;transform:translateY(8px);
-  transition:opacity .3s,transform .3s;min-width:220px}
+  padding:14px 18px;font-family:var(--font-mono);font-size:.74rem;color:var(--signal);opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;min-width:220px}
 .hud-toast.show{opacity:1;transform:translateY(0)}
 .hud-toast .transfer-bar{width:100%;height:2px;background:rgba(69,216,255,.15);margin-top:8px;overflow:hidden}
 .hud-toast .transfer-fill{width:0;height:100%;background:var(--signal);box-shadow:0 0 6px var(--signal);transition:width .7s linear}
 @media (prefers-reduced-motion:reduce){.hud-toast .transfer-fill{transition:none}}
 @media (max-width:600px){.hud-toast{left:16px;right:16px;bottom:16px;min-width:0}}
 
-/* boot overlay — pure CSS, safe fallback is invisible */
-#boot{position:fixed;inset:0;z-index:999;background:var(--void);display:flex;
-  align-items:center;justify-content:center;flex-direction:column;gap:14px;
-  opacity:0;visibility:hidden;pointer-events:none;
-}
+/* boot overlay, pure CSS so it can never get stuck covering the page */
+#boot{position:fixed;inset:0;z-index:999;background:var(--void);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;opacity:0;visibility:hidden;pointer-events:none}
 .boot-lines{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .boot-lines span{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.12em;color:var(--signal);opacity:0}
 .boot-bar{width:220px;height:3px;background:rgba(69,216,255,.14);overflow:hidden}
@@ -126,69 +112,45 @@ code{font-family:var(--font-mono)}
 .ticker{overflow:hidden;border-bottom:1px solid var(--signal-line);background:rgba(4,6,11,.6);position:relative;z-index:40}
 .ticker-track{display:flex;width:max-content;padding:8px 0}
 .ticker-group{display:flex;white-space:nowrap;font-family:var(--font-mono);font-size:.72rem;color:var(--muted);gap:40px;padding-right:40px}
-@media (prefers-reduced-motion:no-preference){
-  .ticker-track{animation:ticker-scroll 34s linear infinite}
-}
+@media (prefers-reduced-motion:no-preference){.ticker-track{animation:ticker-scroll 40s linear infinite}}
 @keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* NAV */
-header.site-nav{position:sticky;top:0;z-index:50;background:rgba(4,6,11,.78);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--signal-line);
-}
+header.site-nav{position:sticky;top:0;z-index:50;background:rgba(4,6,11,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--signal-line)}
 .site-nav .container{display:flex;align-items:center;justify-content:space-between;height:68px}
 .mark{display:flex;align-items:center;gap:12px;text-decoration:none}
-.mark-glyph{width:34px;height:34px;position:relative;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-head);font-weight:800;font-size:.75rem;color:var(--signal);
-}
+.mark-glyph{width:34px;height:34px;position:relative;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:.75rem;color:var(--signal)}
 .mark-glyph::before,.mark-glyph::after{content:'';position:absolute;width:9px;height:9px;border-color:var(--signal-line-strong)}
 .mark-glyph::before{top:0;left:0;border-top:1.5px solid;border-left:1.5px solid}
 .mark-glyph::after{bottom:0;right:0;border-bottom:1.5px solid;border-right:1.5px solid}
 .mark-name{font-family:var(--font-head);font-weight:700;font-size:.85rem;letter-spacing:.04em;color:var(--ink)}
-nav.links{display:flex;gap:26px;list-style:none}
+nav.links{display:flex;gap:26px}
 nav.links a{text-decoration:none;font-size:.88rem;color:var(--body);position:relative;padding-bottom:4px;transition:color .15s}
-nav.links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--signal);transition:width .2s}
-nav.links a:hover{color:var(--ink)}
-nav.links a:hover::after{width:100%}
+nav.links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--signal);box-shadow:0 0 6px var(--signal);transition:width .25s}
+nav.links a:hover,nav.links a.active{color:var(--ink)}
+nav.links a:hover::after,nav.links a.active::after{width:100%}
 .nav-status{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:.68rem;color:var(--muted);white-space:nowrap}
 .status-dot{width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal);animation:pulse 2s ease infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-@media (max-width:1000px){nav.links{display:none}}
 @media (max-width:1240px){.nav-status span.hide-md{display:none}}
-@media (max-width:1000px){.nav-status{display:none}}
+@media (max-width:1000px){nav.links{display:none}.nav-status{display:none}}
 
 /* HERO */
-.hero{padding:64px 0 72px;position:relative}
+.hero{padding:64px 0 72px;position:relative;border-top:none}
 .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
 .eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.82rem;color:var(--signal);margin-bottom:22px;flex-wrap:wrap}
-h1.name{font-family:var(--font-head);font-weight:900;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.08;
-  letter-spacing:.01em;color:var(--ink);margin-bottom:16px;
-  text-shadow:0 0 28px rgba(69,216,255,.22);
-}
-@media (prefers-reduced-motion:no-preference){
-  h1.name{animation:hero-flicker .4s ease 2.15s 1 both}
-}
-@keyframes hero-flicker{
-  0%{opacity:1;text-shadow:0 0 28px rgba(69,216,255,.22)}
-  12%{opacity:.25;text-shadow:2px 0 var(--alert),-2px 0 var(--signal)}
-  24%{opacity:1;text-shadow:none}
-  40%{opacity:.3;text-shadow:-2px 0 var(--alert),2px 0 var(--signal)}
-  55%{opacity:1;text-shadow:0 0 28px rgba(69,216,255,.22)}
-  100%{opacity:1;text-shadow:0 0 28px rgba(69,216,255,.22)}
-}
-.role{font-size:1.1rem;color:var(--ink);max-width:44ch;margin-bottom:18px;font-weight:500}
+h1.name{font-family:var(--font-head);font-weight:900;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.08;letter-spacing:.01em;color:var(--ink);margin-bottom:16px;text-shadow:0 0 28px rgba(69,216,255,.22)}
+.role{font-size:1.1rem;color:var(--ink);max-width:46ch;margin-bottom:18px;font-weight:500}
 .lede{font-size:.98rem;color:var(--body);max-width:54ch;margin-bottom:14px}
 .lede strong{color:var(--ink);font-weight:600}
-.log-line{font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:30px}
+.log-line{font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:30px;min-height:1.4em}
 .log-line .prompt{color:var(--signal)}
 .log-line .blink{display:inline-block;width:7px;height:1em;background:var(--signal);margin-left:2px;vertical-align:-2px;animation:blink .9s step-end infinite}
 @keyframes blink{50%{opacity:0}}
 
 .cta-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:38px}
-.hbtn{position:relative;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;
-  font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;text-decoration:none;
-  border:1px solid var(--signal-line-strong);color:var(--signal);background:var(--signal-dim);
-  transition:all .2s;cursor:pointer;
-}
+.hbtn{position:relative;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;text-decoration:none;
+  border:1px solid var(--signal-line-strong);color:var(--signal);background:var(--signal-dim);transition:all .2s;cursor:pointer}
 .hbtn::before,.hbtn::after{content:'';position:absolute;width:8px;height:8px;border-color:var(--signal)}
 .hbtn::before{top:-1px;left:-1px;border-top:1.5px solid;border-left:1.5px solid}
 .hbtn::after{bottom:-1px;right:-1px;border-bottom:1.5px solid;border-right:1.5px solid}
@@ -198,8 +160,8 @@ h1.name{font-family:var(--font-head);font-weight:900;font-size:clamp(2.1rem,5vw,
 .hbtn.ghost:hover{color:var(--ink);border-color:var(--signal-line-strong)}
 
 .stat-row{display:flex;gap:14px;flex-wrap:wrap}
-.stat{border:1px solid var(--signal-line);background:var(--panel);padding:12px 16px;min-width:130px}
-.stat b{display:block;font-family:var(--font-head);font-size:1.15rem;color:var(--ink);font-weight:700}
+.stat{padding:12px 16px;min-width:140px}
+.stat b{display:block;font-family:var(--font-head);font-size:1.25rem;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
 .stat span{display:block;font-family:var(--font-mono);font-size:.66rem;color:var(--muted);margin-top:3px;letter-spacing:.04em}
 
 /* HUD DIAGRAM */
@@ -225,7 +187,7 @@ svg#hud{width:100%;height:auto;max-width:420px}
 .flow-label{font-family:var(--font-mono);font-size:10.5px;fill:var(--muted);text-anchor:middle}
 .flow-label.alert{fill:var(--alert)}
 .hud-caption{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-align:center;max-width:36ch}
-.diag-panel{margin-top:4px;max-width:340px;text-align:left;padding:16px 18px}
+.diag-panel{margin-top:4px;max-width:360px;text-align:left;padding:16px 18px}
 .diag-panel[hidden]{display:none}
 .diag-line{font-family:var(--font-mono);font-size:.76rem;color:var(--signal);padding:3px 0}
 .diag-line:last-child{color:var(--body)}
@@ -233,30 +195,45 @@ svg#hud{width:100%;height:auto;max-width:420px}
 /* SECTIONS */
 section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative}
 .sec-idx{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);letter-spacing:.1em;margin-bottom:10px}
-.section-head{display:grid;grid-template-columns:230px 1fr;gap:32px;margin-bottom:38px}
-.section-head h2{font-family:var(--font-head);font-weight:800;font-size:1.55rem;color:var(--ink);letter-spacing:.01em}
+.section-head{display:grid;grid-template-columns:230px 1fr;gap:32px;margin-bottom:34px;align-items:end}
+.section-head h2{font-family:var(--font-head);font-weight:800;font-size:1.55rem;color:var(--ink);letter-spacing:.01em;white-space:nowrap}
 .section-head p{color:var(--muted);max-width:56ch;font-size:.92rem}
 @media (max-width:760px){.section-head{grid-template-columns:1fr;gap:6px}}
 
-.panel{position:relative;border:1px solid var(--signal-line);background:var(--panel);backdrop-filter:blur(6px);overflow:hidden}
-.panel::before,.panel::after{content:'';position:absolute;width:12px;height:12px;border-color:var(--signal-line-strong);z-index:2}
+/* panels: bracket corners, a hover sweep, and a spotlight that follows the cursor */
+.panel{position:relative;border:1px solid var(--signal-line);overflow:hidden;backdrop-filter:blur(6px);
+  background:radial-gradient(280px circle at var(--mx,-400px) var(--my,-400px),rgba(69,216,255,.10),transparent 65%),var(--panel);
+  transition:border-color .2s,transform .25s ease}
+.panel:hover{border-color:var(--signal-line-strong)}
+.panel::before,.panel::after{content:'';position:absolute;width:12px;height:12px;border-color:var(--signal-line-strong);z-index:2;pointer-events:none}
 .panel::before{top:0;left:0;border-top:1.5px solid;border-left:1.5px solid}
 .panel::after{bottom:0;right:0;border-bottom:1.5px solid;border-right:1.5px solid}
-.panel .scan{position:absolute;top:0;left:-45%;width:45%;height:100%;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(69,216,255,.14),transparent);transition:left .6s ease;z-index:1}
+.panel .scan{position:absolute;top:0;left:-45%;width:45%;height:100%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(69,216,255,.12),transparent);transition:left .6s ease;z-index:1}
 .panel:hover .scan{left:110%}
 
-/* repeating power-on reveal — replays each time an element (re)enters view */
+/* hologram materialize on enter, dematerialize on leave, replays every time.
+   only opacity, filter and glow animate (no geometry), so the scroll observer can never feed back on itself */
 @media (prefers-reduced-motion:no-preference){
-  .reveal{opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
-  .reveal.on{animation:power-on .5s ease forwards}
+  .js .reveal{opacity:0}
+  .js .reveal.on{animation:materialize .75s ease-out both}
+  .js .panel.reveal.on{animation:materialize .75s ease-out both,power-glow 1.1s ease-out both}
+  .js .reveal.off{animation:dematerialize .4s ease-in both}
 }
-@keyframes power-on{
-  0%{opacity:0;transform:translateY(10px)}
-  30%{opacity:.55;transform:translateY(0)}
-  45%{opacity:.15}
-  60%{opacity:1}
-  100%{opacity:1;transform:translateY(0)}
+@keyframes materialize{
+  0%{opacity:0;filter:blur(10px) brightness(2)}
+  35%{opacity:1;filter:blur(2px) brightness(1.5)}
+  48%{opacity:.35}
+  60%{opacity:1;filter:blur(0) brightness(1.2)}
+  72%{opacity:.75}
+  100%{opacity:1;filter:none}
+}
+@keyframes power-glow{
+  0%{box-shadow:inset 0 0 0 1px rgba(69,216,255,.9),0 0 34px rgba(69,216,255,.35)}
+  100%{box-shadow:inset 0 0 0 1px rgba(69,216,255,0),0 0 0 rgba(69,216,255,0)}
+}
+@keyframes dematerialize{
+  0%{opacity:1;filter:none}
+  100%{opacity:0;filter:blur(8px) brightness(1.6)}
 }
 
 /* ABOUT */
@@ -266,76 +243,82 @@ section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative
 .about-side{display:flex;flex-direction:column;gap:20px}
 .facts{padding:26px}
 .facts dt{font-family:var(--font-mono);font-size:.68rem;color:var(--signal);margin-top:18px;letter-spacing:.05em}
-.facts dt:first-child{margin-top:0}
+.facts dt:first-of-type{margin-top:0}
 .facts dd{font-size:.95rem;color:var(--ink);margin-top:3px}
 @media (max-width:760px){.about-grid{grid-template-columns:1fr}}
 
-/* PHOTO PANEL */
+/* PHOTO */
 .photo-panel{padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px}
-.photo-frame{position:relative;width:180px;height:180px;overflow:hidden;border:1px solid var(--signal-line-strong)}
-.photo-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;background:var(--void-2);color:var(--muted);font-family:var(--font-mono);font-size:.68rem;text-align:center;padding:10px}
-.photo-hint{font-size:.6rem;opacity:.7}
-.photo-img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.15) contrast(1.05)}
-.scan-sweep{position:absolute;left:0;right:0;top:-40%;height:40%;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(69,216,255,.35),transparent)}
-@media (prefers-reduced-motion:no-preference){
-  .scan-sweep{animation:face-scan 2.4s ease-in-out 1}
-}
-@keyframes face-scan{0%{top:-40%}60%{top:100%}100%{top:100%}}
+.photo-frame{position:relative;width:180px;height:180px;overflow:hidden;border:1px solid var(--signal-line-strong);background:var(--void-2)}
+.photo-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:repeating-linear-gradient(0deg,rgba(69,216,255,.05) 0 1px,transparent 1px 6px)}
+.ph-mono{font-family:var(--font-head);font-weight:900;font-size:2.4rem;color:var(--signal-line-strong)}
+.ph-note{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);letter-spacing:.08em}
+.photo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.15) contrast(1.05)}
+.scan-sweep{position:absolute;left:0;right:0;top:-40%;height:40%;pointer-events:none;z-index:2;background:linear-gradient(180deg,transparent,rgba(69,216,255,.38),transparent)}
+.scan-sweep.run{animation:face-scan 1.9s ease-in-out 1}
+@keyframes face-scan{0%{top:-40%}70%{top:100%}100%{top:100%}}
 .photo-id{font-family:var(--font-mono);font-size:.7rem;color:var(--signal);letter-spacing:.04em;text-align:center}
 
 /* PROJECTS */
-.proj-list{display:flex;flex-direction:column;gap:18px}
-.proj-row{display:grid;grid-template-columns:160px 1fr;gap:26px;padding:24px}
-.proj-meta{font-family:var(--font-mono);font-size:.76rem;color:var(--muted)}
-.proj-status{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-family:var(--font-mono);font-size:.68rem;color:var(--alert)}
-.proj-status i{width:6px;height:6px;border-radius:50%;background:var(--alert);box-shadow:0 0 8px var(--alert);animation:pulse 1.6s ease infinite}
-.proj-title{font-family:var(--font-head);font-weight:700;font-size:1.02rem;color:var(--ink);margin-bottom:8px;letter-spacing:.01em}
-.proj-desc{color:var(--body);max-width:68ch;margin-bottom:12px;font-size:.92rem}
-.proj-stack{font-family:var(--font-mono);font-size:.76rem;color:var(--muted)}
-.proj-stack b{color:var(--signal);font-weight:500}
-.proj-link{display:inline-block;margin-top:12px;font-size:.86rem;color:var(--signal);text-decoration:none;border-bottom:1px solid var(--signal-line-strong)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px}
+.filter{background:transparent;border:1px solid var(--signal-line);color:var(--body);font-family:var(--font-mono);font-size:.74rem;
+  padding:7px 12px;cursor:pointer;letter-spacing:.03em;transition:all .15s;display:inline-flex;gap:8px;align-items:center}
+.filter .fc{color:var(--muted)}
+.filter:hover{color:var(--ink);border-color:var(--signal-line-strong)}
+.filter.on{color:var(--signal);border-color:var(--signal);background:var(--signal-dim);box-shadow:0 0 14px rgba(69,216,255,.18)}
+.filter.on .fc{color:var(--signal)}
+.filter-readout{margin-left:auto;font-family:var(--font-mono);font-size:.7rem;color:var(--muted)}
+.proj-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.proj-card{padding:22px 24px;display:flex;flex-direction:column}
+.proj-card[hidden]{display:none !important}
+.proj-card.featured{grid-column:1/-1;border-color:rgba(255,180,84,.35)}
+.proj-card.featured::before,.proj-card.featured::after{border-color:var(--alert)}
+.proj-top{display:flex;justify-content:space-between;gap:12px;font-family:var(--font-mono);font-size:.7rem;margin-bottom:12px;letter-spacing:.04em}
+.proj-date{color:var(--signal)}
+.proj-org{color:var(--muted);text-align:right}
+.proj-title{font-family:var(--font-head);font-weight:700;font-size:1.06rem;color:var(--ink);letter-spacing:.01em}
+.proj-sub{font-size:.9rem;color:var(--ink);opacity:.82;margin:2px 0 10px}
+.proj-desc{font-size:.9rem;color:var(--body);margin-bottom:14px;flex:1;max-width:72ch}
+.proj-stack{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
+.proj-link{display:inline-block;align-self:flex-start;margin-top:12px;font-size:.86rem;color:var(--signal);text-decoration:none;border-bottom:1px solid var(--signal-line-strong)}
 .proj-link:hover{color:var(--ink);border-color:var(--ink)}
-@media (max-width:640px){.proj-row{grid-template-columns:1fr;gap:8px}}
+.proj-status{display:inline-flex;align-items:center;gap:6px;color:var(--alert)}
+.proj-status i{width:6px;height:6px;border-radius:50%;background:var(--alert);box-shadow:0 0 8px var(--alert);animation:pulse 1.6s ease infinite}
+@media (max-width:820px){.proj-grid{grid-template-columns:1fr}.filter-readout{margin-left:0;width:100%}}
 
 /* SKILLS */
-.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 .skill-cat{padding:22px}
 .skill-cat h3{font-family:var(--font-mono);font-size:.74rem;color:var(--signal);margin-bottom:14px;letter-spacing:.06em;font-weight:500}
+.skill-cat.past h3{color:var(--muted)}
 .skill-cat ul{list-style:none}
 .skill-cat li{padding:6px 0;border-bottom:1px solid var(--signal-line);font-size:.9rem;color:var(--ink)}
 .skill-cat li:last-child{border-bottom:none}
 
 /* EXPERIENCE */
 .timeline{position:relative;padding-left:26px}
-.timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;
-  background:linear-gradient(180deg,var(--signal),transparent 96%);
-}
+.timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:linear-gradient(180deg,var(--signal),rgba(69,216,255,.15))}
 .tl-item{position:relative;padding:0 0 30px 20px}
-.tl-item::before{content:'';position:absolute;left:-26px;top:4px;width:9px;height:9px;background:var(--void);
-  border:1.5px solid var(--signal);box-shadow:0 0 8px rgba(69,216,255,.5);transform:rotate(45deg);
-}
+.tl-item::before{content:'';position:absolute;left:-26px;top:4px;width:9px;height:9px;background:var(--void);border:1.5px solid var(--signal);box-shadow:0 0 8px rgba(69,216,255,.5);transform:rotate(45deg)}
 .tl-item:last-child{padding-bottom:0}
 .tl-date{font-family:var(--font-mono);font-size:.74rem;color:var(--signal);margin-bottom:4px}
 .tl-title{font-family:var(--font-head);font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:2px}
 .tl-org{font-size:.86rem;color:var(--muted);margin-bottom:8px}
-.tl-desc{color:var(--body);max-width:62ch;font-size:.92rem}
+.tl-desc{color:var(--body);max-width:64ch;font-size:.92rem}
 
 /* BEYOND */
 .beyond-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start}
 .beyond-grid p{max-width:60ch;margin-bottom:16px}
 .beyond-grid strong{color:var(--ink);font-weight:600}
 .tag-row{display:flex;flex-wrap:wrap;gap:10px}
-.tag{border:1px solid var(--signal-line-strong);padding:7px 15px;font-size:.84rem;color:var(--body);
-  font-family:var(--font-mono);transition:all .15s;
-}
+.tag{border:1px solid var(--signal-line-strong);padding:7px 15px;font-size:.84rem;color:var(--body);font-family:var(--font-mono);transition:all .15s}
 .tag:hover{color:var(--signal);box-shadow:0 0 12px rgba(69,216,255,.2)}
 @media (max-width:760px){.beyond-grid{grid-template-columns:1fr}}
 
 /* TERMINAL */
 .term{padding:20px 22px;font-family:var(--font-mono);font-size:.84rem}
-.term-output{max-height:220px;overflow-y:auto;margin-bottom:14px;color:var(--body)}
+.term-output{max-height:240px;overflow-y:auto;margin-bottom:14px;color:var(--body)}
 .term-output p{margin-bottom:6px;line-height:1.6;word-break:break-word}
 .term-output .cmd-echo{color:var(--signal)}
 .term-input-row{display:flex;align-items:center;gap:8px;border-top:1px solid var(--signal-line);padding-top:12px}
@@ -344,22 +327,19 @@ section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative
 
 /* CONTACT */
 .contact-init{font-family:var(--font-mono);font-size:.82rem;color:var(--signal);margin-bottom:14px}
-.contact a.email{font-family:var(--font-head);font-weight:800;font-size:clamp(1.15rem,3.2vw,1.8rem);
-  color:var(--ink);text-decoration:none;display:inline-block;margin-bottom:26px;
-  border-bottom:2px solid var(--signal);padding-bottom:4px;
-}
+.contact a.email{font-family:var(--font-head);font-weight:800;font-size:clamp(1.05rem,3.2vw,1.8rem);color:var(--ink);text-decoration:none;display:inline-block;margin-bottom:26px;border-bottom:2px solid var(--signal);padding-bottom:4px;word-break:break-all}
 .contact a.email:hover{color:var(--signal);text-shadow:0 0 20px rgba(69,216,255,.35)}
 .contact-links{display:flex;gap:26px;flex-wrap:wrap}
 .contact-links a{font-size:.9rem;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--signal-line)}
 .contact-links a:hover{color:var(--signal);border-color:var(--signal)}
 
-footer{padding:30px 0;border-top:1px solid var(--signal-line)}
+footer{padding:30px 0;border-top:1px solid var(--signal-line);position:relative}
 footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 
 @media (max-width:900px){
-  .hero-grid{grid-template-columns:1fr}
-  .hud-wrap{order:-1}
-  svg#hud{max-width:280px}
+  .hero{padding-top:40px}
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  svg#hud{max-width:260px}
 }
 </style>
 </head>
@@ -376,17 +356,13 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <div class="boot-bar"><div class="boot-bar-fill"></div></div>
 </div>
 
-<div class="grid-bg" aria-hidden="true"></div>
+<canvas id="neural" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
-<canvas id="stars" aria-hidden="true"></canvas>
-<div id="brainBg" aria-hidden="true">
-  <canvas id="brainCanvas"></canvas>
-</div>
 <div class="frame-corner tl" aria-hidden="true"></div>
 <div class="frame-corner tr" aria-hidden="true"></div>
 <div class="frame-corner bl" aria-hidden="true"></div>
 <div class="frame-corner br" aria-hidden="true"></div>
-<div class="coord-readout" id="coordReadout" aria-hidden="true">X 0000 · Y 0000</div>
+<div class="coord-readout" id="coordReadout" aria-hidden="true">X 0000 / Y 0000</div>
 <button class="sfx-btn" id="sfxToggle" type="button" aria-pressed="false" aria-label="Toggle interface sound effects">SFX OFF</button>
 
 <header class="site-nav">
@@ -395,7 +371,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
       <span class="mark-glyph">NC</span>
       <span class="mark-name">NISHANT CHAUDHARI</span>
     </a>
-    <nav class="links">
+    <nav class="links" aria-label="Sections">
       <a href="#about">About</a>
       <a href="#projects">Projects</a>
       <a href="#skills">Skills</a>
@@ -415,30 +391,30 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track">
-    <span class="ticker-group">AGENTSWE — SWE-BENCH PRO SCAFFOLD // TENDERMIND — RED HAT HACKATHON 2026 // OMEGATK RAG ASSISTANT — OPENEYE / CADENCE // SWARM ROBOTICS — MOON LAB, IISER // STACK: PYTORCH · ROS2 · CLAUDE API · FAISS · IBM GRANITE // FOCUS: MULTI-AGENT RL · LLM PIPELINES · ROBOTICS //</span>
-    <span class="ticker-group">AGENTSWE — SWE-BENCH PRO SCAFFOLD // TENDERMIND — RED HAT HACKATHON 2026 // OMEGATK RAG ASSISTANT — OPENEYE / CADENCE // SWARM ROBOTICS — MOON LAB, IISER // STACK: PYTORCH · ROS2 · CLAUDE API · FAISS · IBM GRANITE // FOCUS: MULTI-AGENT RL · LLM PIPELINES · ROBOTICS //</span>
+    <span class="ticker-group">AGENTSWE / SWE-BENCH PRO SCAFFOLD // NANOINFER / LLM GATEWAY / DISTTRAIN // MCP-EVAL / MCP-PROBE // EMBERDEEP / LOCAL AI GAME MASTER // TENDERMIND / RED HAT HACKATHON 2026 // OMEGATK RAG / OPENEYE + CADENCE // STACK: PYTHON, PYTORCH, CLAUDE API, MCP, FAISS // BACKGROUND: MARL + ROBOTICS (UNDERGRAD) //</span>
+    <span class="ticker-group">AGENTSWE / SWE-BENCH PRO SCAFFOLD // NANOINFER / LLM GATEWAY / DISTTRAIN // MCP-EVAL / MCP-PROBE // EMBERDEEP / LOCAL AI GAME MASTER // TENDERMIND / RED HAT HACKATHON 2026 // OMEGATK RAG / OPENEYE + CADENCE // STACK: PYTHON, PYTORCH, CLAUDE API, MCP, FAISS // BACKGROUND: MARL + ROBOTICS (UNDERGRAD) //</span>
   </div>
 </div>
 
 <main id="top">
 
   <!-- HERO -->
-  <section class="hero" style="border-top:none">
+  <section class="hero">
     <div class="container hero-grid">
       <div>
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>SYSTEM ONLINE — BOSTON, MA<span id="wx"></span></p>
-        <h1 class="name">NISHANT CHAUDHARI</h1>
-        <p class="role">AI systems engineer working on multi-agent RL, LLM pipelines, and robotics.</p>
-        <p class="lede">I build agents that hold up outside the demo — the scaffolding, evals, and failure-mode analysis that make a system reliable rather than just clever. Currently building <strong>AgentSWE</strong>, a failure-mode-targeted scaffold for SWE-bench Pro.</p>
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>SYSTEM ONLINE / BOSTON, MA<span id="wx"></span></p>
+        <h1 class="name" id="heroName">NISHANT CHAUDHARI</h1>
+        <p class="role">AI systems engineer working on LLM agents, evals, and inference infrastructure, with undergrad research in multi-agent RL and robotics.</p>
+        <p class="lede">I build AI systems that hold up outside the demo: the scaffolding, evals, and failure-mode analysis that make them reliable rather than just clever. Right now that's <strong>AgentSWE</strong>, a failure-mode-targeted scaffold for SWE-bench Pro.</p>
         <p class="log-line"><span class="prompt">&gt;</span> <span id="typed"></span><span class="blink" aria-hidden="true"></span></p>
         <div class="cta-row">
           <a href="#projects" class="hbtn">VIEW PROJECTS</a>
-          <a href="Nishant_Chaudhari_CV.docx" class="hbtn ghost" download>DOWNLOAD CV</a>
+          <a href="Nishant_Chaudhari_Master_Resume.docx" class="hbtn ghost" data-resume download>DOWNLOAD RESUME</a>
         </div>
-        <div class="stat-row">
-          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b>5+</b><span>PROJECTS</span></div>
-          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b>2</b><span>INDUSTRY PARTNERS</span></div>
-          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b>MARL / RAG</b><span>CORE FOCUS</span></div>
+        <div class="stat-row" id="statRow">
+          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b id="statProjects" data-count="16">16</b><span>PROJECTS</span></div>
+          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b data-count="2">2</b><span>INDUSTRY PROJECTS</span></div>
+          <div class="stat panel"><span class="scan" aria-hidden="true"></span><b data-count="500" data-prefix="~">~500</b><span>PROBLEMS SOLVED (CHEGG)</span></div>
         </div>
       </div>
 
@@ -456,28 +432,21 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
               <stop offset="100%" stop-color="var(--signal)" stop-opacity="0.9"/>
             </linearGradient>
           </defs>
-
           <g class="rot-cw"><circle class="ring-decor outer" cx="280" cy="280" r="215"/></g>
           <g class="rot-ccw"><circle class="ring-decor mid" cx="280" cy="280" r="190"/></g>
-
           <path class="flow-arc" d="M280,125 A155,155 0 0 1 435,280" marker-end="url(#mArrow)"/>
           <path class="flow-arc alert" d="M435,280 A155,155 0 0 1 280,435" marker-end="url(#mArrowAlert)"/>
           <path class="flow-arc" d="M280,435 A155,155 0 0 1 125,280" marker-end="url(#mArrow)"/>
           <path class="flow-arc" d="M125,280 A155,155 0 0 1 280,125" marker-end="url(#mArrow)"/>
-
           <text class="flow-label" x="397" y="163">observe</text>
           <text class="flow-label alert" x="397" y="397">scaffold</text>
           <text class="flow-label" x="163" y="397">score</text>
           <text class="flow-label" x="163" y="163">adjust</text>
-
           <g class="hud-badge"><rect x="195" y="49" width="170" height="42" rx="1"/><text x="280" y="75">ENVIRONMENT</text></g>
           <g class="hud-badge"><rect x="420" y="259" width="140" height="42" rx="1"/><text x="490" y="285">AGENT</text></g>
           <g class="hud-badge"><rect x="195" y="469" width="170" height="42" rx="1"/><text x="280" y="495">SCAFFOLD</text></g>
           <g class="hud-badge"><rect x="0" y="259" width="140" height="42" rx="1"/><text x="70" y="285">EVALUATOR</text></g>
-
-          <g class="sweep-rot">
-            <line x1="280" y1="280" x2="280" y2="65" stroke="url(#sweepGrad)" stroke-width="2"/>
-          </g>
+          <g class="sweep-rot"><line x1="280" y1="280" x2="280" y2="65" stroke="url(#sweepGrad)" stroke-width="2"/></g>
           <g id="hudCore" tabindex="0" role="button" aria-label="Show core diagnostics">
             <circle class="hud-core-ring" cx="280" cy="280" r="52"/>
             <text class="hud-core-text" x="280" y="286">NC</text>
@@ -488,8 +457,8 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
           <span class="scan" aria-hidden="true"></span>
           <p class="diag-line">&gt; STATUS: NOMINAL</p>
           <p class="diag-line">&gt; UPTIME: <span id="uptime">00:00:00</span></p>
-          <p class="diag-line">&gt; T-MINUS: <span id="countdown">--</span> DAYS (SWE-BENCH PRO TARGET)</p>
-          <p class="diag-line">&gt; AGENT: AgentSWE — LOADED</p>
+          <p class="diag-line">&gt; T-MINUS: <span id="countdown">--</span> DAYS TO AGENTSWE TARGET</p>
+          <p class="diag-line">&gt; AGENT: AgentSWE, LOADED</p>
         </div>
       </div>
     </div>
@@ -499,34 +468,33 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="about">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 01</p><h2>About</h2></div>
+        <div><p class="sec-idx">MODULE / 01</p><h2 data-decrypt>About</h2></div>
       </div>
       <div class="about-grid">
-        <div>
-          <p>I'm finishing an <strong>M.S. in Applied AI</strong> at Northeastern, after a B.S. in Electrical Engineering &amp; Computer Science at IISER Bhopal. My focus sits across <strong>multi-agent reinforcement learning</strong>, <strong>LLM-based pipelines</strong>, and <strong>autonomous robotics</strong>.</p>
-          <p>I care more about the parts that don't demo well — evals, failure modes, deployment constraints — than about a clean one-off result. Understanding why an agent breaks, and building the scaffold that stops it, is the work I actually enjoy.</p>
-          <p>Right now that means <strong>AgentSWE</strong>: a scaffold aimed at the most common failure modes on SWE-bench Pro, built around a simple thesis — better scaffolding on a cheaper model (Claude Haiku) can close a meaningful share of the gap to expensive-model baselines. Earlier work includes two industry-sponsored projects with <strong>OpenEye Scientific Software</strong> and <strong>Cadence</strong>, and a placement at the 2026 <strong>Red Hat Hackathon</strong>.</p>
+        <div class="reveal">
+          <p>I'm doing a <strong>Master of Professional Studies in Applied AI</strong> at Northeastern (2026 to 2027), after a B.S. in Electrical Engineering &amp; Computer Science at IISER Bhopal. Most of my work now is <strong>LLM systems</strong>: agents and the tooling around them, evaluation harnesses, retrieval, and the infrastructure underneath, like inference servers, gateways, and distributed training.</p>
+          <p>I care more about the parts that don't demo well, like evals, failure modes, and deployment constraints, than about a clean one-off result. Understanding why an agent breaks, and building the scaffold that stops it, is the work I actually enjoy.</p>
+          <p>Before that, my undergrad research was in <strong>multi-agent reinforcement learning and robotics</strong>: MARL for swarm exploration at MOON Lab and an autonomous cleaning robot at DUDE Lab. In 2026 I did two industry-sponsored projects with <strong>OpenEye Scientific Software (Cadence)</strong> and built TenderMind at the <strong>Red Hat Hackathon</strong>.</p>
         </div>
         <div class="about-side">
           <div class="photo-panel panel reveal">
             <span class="scan" aria-hidden="true"></span>
-            <div class="photo-frame">
-              <div class="photo-placeholder" id="photoPlaceholder">
-                <span>PHOTO PENDING</span>
-                <span class="photo-hint">save as photo.jpg in the repo root, then swap this div for &lt;img src="photo.jpg"&gt;</span>
-              </div>
-              <div class="scan-sweep" aria-hidden="true"></div>
+            <!-- Drop a square photo named photo.jpg in the repo root and it shows up here automatically. -->
+            <div class="photo-frame" id="photoFrame">
+              <div class="photo-placeholder" aria-hidden="true"><span class="ph-mono">NC</span><span class="ph-note">IMAGE OFFLINE</span></div>
+              <div class="scan-sweep" id="scanSweep" aria-hidden="true"></div>
             </div>
-            <p class="photo-id" id="photoId">&gt; IDENTITY: VERIFYING...</p>
+            <p class="photo-id" id="photoId">&gt; IDENTITY: STANDBY</p>
           </div>
           <dl class="facts panel reveal">
             <span class="scan" aria-hidden="true"></span>
-            <dt>PROGRAM</dt><dd>M.S. Applied AI, Northeastern University (2026–)</dd>
-            <dt>FOCUS</dt><dd>Multi-agent RL, LLM pipelines, robotics evals</dd>
-            <dt>BUILDING</dt><dd>AgentSWE — a scaffold for SWE-bench Pro</dd>
+            <dt>PROGRAM</dt><dd>MPS Applied AI, Northeastern University (2026 to 2027)</dd>
+            <dt>FOCUS</dt><dd>LLM agents, evals, inference and training infrastructure</dd>
+            <dt>BACKGROUND</dt><dd>Multi-agent RL and robotics (undergrad research)</dd>
+            <dt>BUILDING</dt><dd>AgentSWE, a scaffold for SWE-bench Pro</dd>
             <dt>BASED IN</dt><dd>Boston, MA</dd>
-            <dt>GITHUB</dt><dd id="ghRepos">syncing…</dd>
-            <dt>LAST PUSH</dt><dd id="ghPush">syncing…</dd>
+            <dt>GITHUB</dt><dd id="ghRepos">syncing...</dd>
+            <dt>LAST PUSH</dt><dd id="ghPush">syncing...</dd>
           </dl>
         </div>
       </div>
@@ -537,74 +505,172 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="projects">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 02</p><h2>Projects</h2></div>
-        <p>A mix of active work, hackathon builds, and research from the past three years.</p>
+        <div><p class="sec-idx">MODULE / 02</p><h2 data-decrypt>Projects</h2></div>
+        <p>Everything I've built, newest first. Filter by area.</p>
       </div>
 
-      <div class="proj-list">
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button type="button" class="filter on" data-filter="all" aria-pressed="true">All <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="agents" aria-pressed="false">Agents &amp; MCP <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="infra" aria-pressed="false">LLM infra <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="rag" aria-pressed="false">RAG <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="industry" aria-pressed="false">Industry <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="robotics" aria-pressed="false">Robotics &amp; MARL <span class="fc"></span></button>
+        <span class="filter-readout" id="filterReadout" aria-live="polite"></span>
+      </div>
 
-        <div class="proj-row panel reveal">
-          <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">2026<div class="proj-status"><i aria-hidden="true"></i>ACTIVE — TARGET NOV 2026</div></div>
-          <div>
-            <h3 class="proj-title">AgentSWE — failure-mode-targeted scaffold</h3>
-            <p class="proj-desc">A code-agent scaffold built around the most common failure modes on SWE-bench Pro. The goal is a cost curve, not just a score — showing that scaffold improvements on a cheaper model can approach expensive-model baselines.</p>
-            <p class="proj-stack"><b>STACK</b> Python · Claude API · SWE-bench Pro · evals</p>
-          </div>
-        </div>
+      <div class="proj-grid">
 
-        <div class="proj-row panel reveal">
+        <article class="proj-card featured panel tilt reveal" data-cat="agents">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">RED HAT HACKATHON<br/>2026</div>
-          <div>
-            <h3 class="proj-title">TenderMind — local multi-agent tender evaluator</h3>
-            <p class="proj-desc">A fully air-gapped multi-agent pipeline (Podman AI Lab + IBM Granite 4.0) that scores, ranks, and writes PDF reports for vendor tenders — 14 LLM calls across an evaluator and a ranker agent, with no cloud dependency.</p>
-            <p class="proj-stack"><b>STACK</b> Python · Podman AI Lab · IBM Granite · MCP · Flask</p>
-            <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/TenderMind-RedHat-Hackathon" target="_blank" rel="noopener">View on GitHub</a>
-          </div>
-        </div>
+          <div class="proj-top"><span class="proj-status"><i aria-hidden="true"></i>IN PROGRESS, TARGET NOV 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">AgentSWE</h3>
+          <p class="proj-sub">Failure-mode-targeted scaffold for SWE-bench Pro</p>
+          <p class="proj-desc">A code-agent scaffold built around the most common failure modes on SWE-bench Pro. The goal is a cost curve, not just a score: showing that better scaffolding on a cheaper model (Claude Haiku) can close part of the gap to expensive-model baselines.</p>
+          <p class="proj-stack">Python / Claude API / SWE-bench Pro / evals</p>
+        </article>
 
-        <div class="proj-row panel reveal">
+        <article class="proj-card panel tilt reveal" data-cat="agents">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">OPENEYE / CADENCE<br/>JAN–APR 2026</div>
-          <div>
-            <h3 class="proj-title">OmegaTK RAG coding assistant</h3>
-            <p class="proj-desc">A retrieval-augmented assistant for the OmegaTK Python toolkit: a FAISS index over eight documentation sources, history-aware MMR retrieval, and Gemini 2.5 Flash for generation — routing clear API questions, vague prompts, and multi-turn follow-ups differently.</p>
-            <p class="proj-stack"><b>STACK</b> Python · FAISS · Gemini 2.5 · RAG · Streamlit</p>
-            <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/OmegaTK-RAG-Coding-Assistant" target="_blank" rel="noopener">View on GitHub</a>
-          </div>
-        </div>
+          <div class="proj-top"><span class="proj-date">SEP 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">Emberdeep</h3>
+          <p class="proj-sub">Fully local tabletop RPG with an AI game master</p>
+          <p class="proj-desc">SRD 5.1 rules running entirely on a local model through llama.cpp or Ollama, with zero external API calls. A deterministic rules engine owns all state and numbers; the model only turns player text into structured actions and narrates results, which the engine validates and clamps. Solo, hot-seat, and LAN browser multiplayer.</p>
+          <p class="proj-stack">Python / llama.cpp / Ollama / Server-Sent Events</p>
+        </article>
 
-        <div class="proj-row panel reveal">
+        <article class="proj-card panel tilt reveal" data-cat="agents">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">OPENEYE / CADENCE<br/>JAN–APR 2026</div>
-          <div>
-            <h3 class="proj-title">Antiviral potency prediction</h3>
-            <p class="proj-desc">An end-to-end pIC50 prediction pipeline for SARS-CoV-2 and MERS-CoV Mpro inhibitors, including reverse-engineering OpenEye's proprietary .oez format (via libzstd and ctypes) so inference could run on 76 Cresset compounds without a license dependency.</p>
-            <p class="proj-stack"><b>STACK</b> Python · RDKit · XGBoost · scikit-learn</p>
-            <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/antiviral-potency-prediction" target="_blank" rel="noopener">View on GitHub</a>
-          </div>
-        </div>
+          <div class="proj-top"><span class="proj-date">AUG 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">mcp-probe</h3>
+          <p class="proj-sub">Recording proxy that records and replays MCP sessions</p>
+          <p class="proj-desc">Drop it in front of any stdio MCP server to get a full session transcript plus latency and estimated token cost per tool call, then replay the session against a changed server and diff what moved. Passes bytes through untouched (a test checks this), and <code>--fail-on-change</code> turns a recorded session into a CI regression test. Zero dependencies, 24 tests.</p>
+          <p class="proj-stack">Python (stdlib only) / MCP / JSON-RPC</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/MCP-Probe" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
 
-        <div class="proj-row panel reveal">
+        <article class="proj-card panel tilt reveal" data-cat="agents">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">MOON LAB, IISER<br/>SEP 2024–APR 2025</div>
-          <div>
-            <h3 class="proj-title">Swarm robotics — multi-agent RL</h3>
-            <p class="proj-desc">MARL algorithms in PyTorch for cooperative swarm decision-making, improving collective exploration efficiency by 20%. Validated in ROS2/Gazebo and deployed on NVIDIA Jetson hardware.</p>
-            <p class="proj-stack"><b>STACK</b> PyTorch · ROS2 · Gazebo · NVIDIA Jetson</p>
-          </div>
-        </div>
+          <div class="proj-top"><span class="proj-date">JUL 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">mcp-eval</h3>
+          <p class="proj-sub">Scores how well a model actually uses your MCP tools</p>
+          <p class="proj-desc">Point it at a server and a YAML file of tasks. It scores tool selection, argument validity and values, and whether the model correctly calls nothing when nothing is needed. It also measures what tool schemas cost in tokens, and an ablation mode strips each description to show which ones are load-bearing. Hand-rolled JSON-RPC client, CI gate, 46 tests. Record with mcp-probe, score with mcp-eval.</p>
+          <p class="proj-stack">Python / Anthropic API / JSON-RPC / pyyaml</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/MCP-Eval" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
 
-        <div class="proj-row panel reveal">
+        <article class="proj-card panel tilt reveal" data-cat="infra">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-meta">DUDE LAB, IISER<br/>2023–2024</div>
-          <div>
-            <h3 class="proj-title">Autonomous cleaning robot</h3>
-            <p class="proj-desc">An on-device object classifier (TensorFlow + OpenCV, 95% accuracy) paired with LiDAR and ultrasonic sensor fusion for navigation and collision avoidance, plus a SolidWorks mechanical redesign that improved cleaning efficiency by 40%.</p>
-            <p class="proj-stack"><b>STACK</b> TensorFlow · OpenCV · Python · LiDAR · SolidWorks</p>
-          </div>
-        </div>
+          <div class="proj-top"><span class="proj-date">JUN 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">disttrain</h3>
+          <p class="proj-sub">Distributed training for a GPT-style transformer</p>
+          <p class="proj-desc">PyTorch DDP and FSDP2 with mixed precision, activation checkpointing, fault-tolerant sharded checkpoints, coordinated preemption, and throughput benchmarking.</p>
+          <p class="proj-stack">PyTorch / DDP / FSDP2 / mixed precision</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="infra">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">JUN 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">nanoinfer</h3>
+          <p class="proj-sub">LLM inference server in pure NumPy</p>
+          <p class="proj-desc">Paged KV cache, continuous batching, chunked prefill, a BPE tokenizer, safetensors loading, and a GPT-2 decoder written from scratch, behind an OpenAI-compatible HTTP API with SSE streaming and Prometheus metrics.</p>
+          <p class="proj-stack">Python / NumPy / HTTP + SSE / Prometheus</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="rag">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">JUN 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">rag-notes</h3>
+          <p class="proj-sub">RAG over my own coursework notes, with evals built in</p>
+          <p class="proj-desc">Local embeddings plus a hit-rate@k evaluation harness, so retrieval changes get compared with a number instead of by eye.</p>
+          <p class="proj-stack">Python / sentence-transformers / NumPy / evals</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="infra">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">MAY 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">LLM Gateway</h3>
+          <p class="proj-sub">OpenAI-compatible proxy for routing and reliability</p>
+          <p class="proj-desc">Five routing strategies, circuit breakers, retry and fallback, per-key rate limits and budgets (SQLite), exact and semantic response caching, and Prometheus metrics. 203 passing tests, and mutation testing caught all 18 injected bugs.</p>
+          <p class="proj-stack">Python / SQLite / Prometheus / OpenAI API spec</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="rag">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">MAY 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">CourseMate</h3>
+          <p class="proj-sub">RAG system over my course materials</p>
+          <p class="proj-desc">Built as the running example for an LLM systems study guide I wrote covering prompting, RAG, evaluation, agents, and deployment.</p>
+          <p class="proj-stack">Python / RAG / embeddings</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="agents">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">MAY 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">github-insights-mcp</h3>
+          <p class="proj-sub">MCP server for exploring public GitHub repos</p>
+          <p class="proj-desc">Six read-only tools: search, repo details, READMEs, contributors, commit activity, and side-by-side comparison of up to 10 repos fetched concurrently. GitHub failures come back as specific errors the model can act on, and the core is tested offline against a mock transport.</p>
+          <p class="proj-stack">Python / MCP Python SDK / httpx / GitHub REST API</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/Github-insight-MCP" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="agents">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">APR 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">multi-agent-debate</h3>
+          <p class="proj-sub">Proponent, Skeptic, and Judge agent loop</p>
+          <p class="proj-desc">The Proponent and Skeptic argue a question and the Judge rules, with dependencies kept minimal on purpose.</p>
+          <p class="proj-stack">Python / LLM APIs</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/Multiagent-Debate" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="agents">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">MAR 2026</span><span class="proj-org">RED HAT HACKATHON</span></div>
+          <h3 class="proj-title">TenderMind</h3>
+          <p class="proj-sub">Local multi-agent tender evaluator</p>
+          <p class="proj-desc">A fully air-gapped pipeline (Podman AI Lab + IBM Granite 4.0) that scores, ranks, and writes PDF reports for vendor tenders: 14 LLM calls across an evaluator and a ranker agent, with no cloud dependency.</p>
+          <p class="proj-stack">Python / Podman AI Lab / IBM Granite / MCP / Flask</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/TenderMind-RedHat-Hackathon" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="rag industry">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">JAN TO APR 2026</span><span class="proj-org">OPENEYE / CADENCE</span></div>
+          <h3 class="proj-title">OmegaTK RAG assistant</h3>
+          <p class="proj-sub">Coding assistant for the OmegaTK Python toolkit</p>
+          <p class="proj-desc">A FAISS index over eight documentation sources, history-aware MMR retrieval, and Gemini 2.5 Flash for generation. Clear API questions, vague prompts, and multi-turn follow-ups each get routed differently.</p>
+          <p class="proj-stack">Python / FAISS / Gemini 2.5 / Streamlit</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/OmegaTK-RAG-Coding-Assistant" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="industry">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">JAN TO APR 2026</span><span class="proj-org">OPENEYE / CADENCE</span></div>
+          <h3 class="proj-title">Antiviral potency prediction</h3>
+          <p class="proj-sub">pIC50 prediction for SARS-CoV-2 and MERS-CoV Mpro</p>
+          <p class="proj-desc">An end-to-end ML pipeline, including reverse-engineering OpenEye's proprietary .oez format (libzstd + ctypes) so inference could run on 76 Cresset compounds without a license dependency.</p>
+          <p class="proj-stack">Python / RDKit / XGBoost / scikit-learn</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/antiviral-potency-prediction" target="_blank" rel="noopener">Source on GitHub</a>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="robotics">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">JAN 2024 TO APR 2025</span><span class="proj-org">MOON LAB, IISER</span></div>
+          <h3 class="proj-title">Swarm robotics with MARL</h3>
+          <p class="proj-sub">Undergraduate research</p>
+          <p class="proj-desc">Multi-agent RL algorithms in PyTorch for cooperative swarm decision-making, improving collective exploration efficiency by 20%. Validated in ROS2/Gazebo and deployed on NVIDIA Jetson hardware.</p>
+          <p class="proj-stack">PyTorch / ROS2 / Gazebo / NVIDIA Jetson</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="robotics">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">2023 TO 2024</span><span class="proj-org">DUDE LAB, IISER</span></div>
+          <h3 class="proj-title">Autonomous cleaning robot</h3>
+          <p class="proj-sub">Undergraduate research</p>
+          <p class="proj-desc">On-device object classification (TensorFlow + OpenCV, 95% accuracy), LiDAR and ultrasonic sensor fusion for navigation and collision avoidance, and a SolidWorks redesign that improved cleaning efficiency by 40%.</p>
+          <p class="proj-stack">TensorFlow / OpenCV / Python / LiDAR / SolidWorks</p>
+        </article>
 
       </div>
     </div>
@@ -614,28 +680,28 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="skills">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 03</p><h2>Skills &amp; tools</h2></div>
+        <div><p class="sec-idx">MODULE / 03</p><h2 data-decrypt>Skills &amp; tools</h2></div>
       </div>
       <div class="skills-grid">
-        <div class="skill-cat panel reveal">
+        <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
-          <h3>LANGUAGES</h3>
-          <ul><li>Python</li><li>C / C++</li><li>MATLAB</li><li>Mathematica</li><li>R</li></ul>
+          <h3>LLM SYSTEMS &amp; AGENTS</h3>
+          <ul><li>LLM APIs (Claude, Gemini, OpenAI-compatible)</li><li>Agents and multi-agent loops</li><li>MCP servers and clients (Python SDK)</li><li>RAG and vector search (FAISS)</li><li>Eval harnesses and ablations</li><li>Local models (llama.cpp, Ollama, IBM Granite)</li><li>Hugging Face transformers</li></ul>
         </div>
-        <div class="skill-cat panel reveal">
+        <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
-          <h3>AI &amp; ML</h3>
-          <ul><li>PyTorch</li><li>TensorFlow</li><li>Multi-agent RL</li><li>RAG</li><li>FAISS</li><li>LLM APIs</li><li>OpenCV</li><li>scikit-learn</li></ul>
+          <h3>ML &amp; INFRASTRUCTURE</h3>
+          <ul><li>PyTorch (DDP, FSDP2)</li><li>TensorFlow</li><li>scikit-learn, XGBoost</li><li>sentence-transformers</li><li>RDKit, OpenCV</li><li>Prometheus, SQLite</li></ul>
         </div>
-        <div class="skill-cat panel reveal">
+        <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
-          <h3>ROBOTICS</h3>
-          <ul><li>ROS / ROS2</li><li>Gazebo</li><li>LiDAR</li><li>NVIDIA Jetson</li><li>Pixhawk</li><li>IoT</li></ul>
+          <h3>LANGUAGES &amp; TOOLS</h3>
+          <ul><li>Python</li><li>C / C++</li><li>MATLAB, Mathematica, R</li><li>Git</li><li>Podman</li><li>Flask, Streamlit</li></ul>
         </div>
-        <div class="skill-cat panel reveal">
+        <div class="skill-cat past panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
-          <h3>ENGINEERING &amp; TOOLS</h3>
-          <ul><li>SolidWorks</li><li>Fusion 360</li><li>COMSOL</li><li>Podman</li><li>Streamlit</li><li>Flask</li><li>Git</li></ul>
+          <h3>ROBOTICS &amp; MARL (UNDERGRAD)</h3>
+          <ul><li>Multi-agent RL</li><li>ROS / ROS2, Gazebo</li><li>NVIDIA Jetson, Pixhawk</li><li>LiDAR, IoT</li><li>SolidWorks, Fusion 360, COMSOL</li></ul>
         </div>
       </div>
     </div>
@@ -645,38 +711,50 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="experience">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 04</p><h2>Experience</h2></div>
+        <div><p class="sec-idx">MODULE / 04</p><h2 data-decrypt>Experience</h2></div>
       </div>
       <div class="timeline">
         <div class="tl-item reveal">
-          <p class="tl-date">2026 — PRESENT</p>
-          <h3 class="tl-title">M.S. Applied AI</h3>
-          <p class="tl-org">Northeastern University, Boston, MA — Claude Builder Club</p>
-          <p class="tl-desc">Focused on AI agents, evals, and failure-mode analysis; building AgentSWE on SWE-bench Pro.</p>
+          <p class="tl-date">2026 TO PRESENT</p>
+          <h3 class="tl-title">MPS in Applied AI</h3>
+          <p class="tl-org">Northeastern University, Boston, MA / Claude Builder Club / expected 2027</p>
+          <p class="tl-desc">Coursework in machine learning, advanced deep learning, chatbot architecture, applied NLP, and AI for cybersecurity. Outside class I build LLM systems: agent tooling, eval harnesses, and inference and training infrastructure.</p>
         </div>
         <div class="tl-item reveal">
-          <p class="tl-date">2026</p>
-          <h3 class="tl-title">Red Hat Hackathon — TenderMind</h3>
+          <p class="tl-date">MAR 2026</p>
+          <h3 class="tl-title">Red Hat Hackathon</h3>
           <p class="tl-org">Build AI That Runs on Your Machine</p>
-          <p class="tl-desc">Built a fully local multi-agent tender-evaluation system with zero cloud dependency.</p>
+          <p class="tl-desc">Built TenderMind, a fully local multi-agent tender evaluator on IBM Granite models connected through MCP, with no cloud dependency.</p>
         </div>
         <div class="tl-item reveal">
-          <p class="tl-date">JAN — APR 2026</p>
-          <h3 class="tl-title">Industry CPS projects</h3>
+          <p class="tl-date">JAN TO APR 2026</p>
+          <h3 class="tl-title">Industry projects</h3>
           <p class="tl-org">OpenEye Scientific Software / Cadence</p>
-          <p class="tl-desc">RAG coding assistant (OmegaTK) and an antiviral-potency ML pipeline, about four months each.</p>
+          <p class="tl-desc">Two industry-sponsored projects running in parallel: the OmegaTK RAG coding assistant and an antiviral potency prediction pipeline.</p>
         </div>
         <div class="tl-item reveal">
-          <p class="tl-date">SEP 2024 — APR 2025</p>
+          <p class="tl-date">JAN 2024 TO APR 2025</p>
           <h3 class="tl-title">Multi-agent RL researcher</h3>
-          <p class="tl-org">MOON Lab, IISER Bhopal</p>
-          <p class="tl-desc">MARL for swarm robotics — a 20% gain in exploration efficiency, deployed on ROS2 and NVIDIA Jetson.</p>
+          <p class="tl-org">MOON Lab, IISER Bhopal / undergraduate research</p>
+          <p class="tl-desc">MARL for swarm robotics: a 20% gain in collective exploration efficiency, validated in ROS2/Gazebo and deployed on NVIDIA Jetson.</p>
         </div>
         <div class="tl-item reveal">
-          <p class="tl-date">2021 — 2025</p>
+          <p class="tl-date">2023 TO 2024</p>
+          <h3 class="tl-title">Robotics research</h3>
+          <p class="tl-org">DUDE Lab, IISER Bhopal / undergraduate research</p>
+          <p class="tl-desc">Built an autonomous cleaning robot: on-device object classification, LiDAR and ultrasonic sensor fusion, and the mechanical design in SolidWorks.</p>
+        </div>
+        <div class="tl-item reveal">
+          <p class="tl-date">2022 TO 2025</p>
+          <h3 class="tl-title">Subject Matter Expert (part-time)</h3>
+          <p class="tl-org">Chegg / remote, alongside my undergrad degree</p>
+          <p class="tl-desc">Wrote step-by-step solutions to university-level problems in physics (3 years), math (2 years), and chemical engineering (1 year). About 500 problems, all rated 4/5 or higher by professors.</p>
+        </div>
+        <div class="tl-item reveal">
+          <p class="tl-date">2021 TO 2025</p>
           <h3 class="tl-title">B.S. Electrical Engineering &amp; Computer Science</h3>
           <p class="tl-org">IISER Bhopal, India</p>
-          <p class="tl-desc">Robotics research: autonomous systems, swarm intelligence, sensor simulation.</p>
+          <p class="tl-desc">Robotics research, autonomous systems, swarm intelligence, and signal processing.</p>
         </div>
       </div>
     </div>
@@ -686,14 +764,14 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="beyond">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 05</p><h2>Outside of work</h2></div>
+        <div><p class="sec-idx">MODULE / 05</p><h2 data-decrypt>Outside of work</h2></div>
       </div>
       <div class="beyond-grid">
-        <div>
+        <div class="reveal">
           <p>When I'm not debugging why an agent fell over, I'm probably deep in a video game, cooking something I definitely improvised, or watching football like it owes me money.</p>
-          <p>I like moving around — new cities, new trails, a <strong>fitness</strong> routine I don't skip — and there's usually an anime queued up for late at night.</p>
+          <p>I like moving around: new cities, new trails, and a <strong>fitness</strong> routine I don't skip. There's usually an anime queued up for late at night.</p>
         </div>
-        <div class="tag-row">
+        <div class="tag-row reveal">
           <span class="tag">Gaming</span>
           <span class="tag">Cooking</span>
           <span class="tag">Football</span>
@@ -709,8 +787,8 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="terminal">
     <div class="container">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 06</p><h2>Terminal</h2></div>
-        <p>A tiny shell into this site. Type <code>help</code> to see what it knows.</p>
+        <div><p class="sec-idx">MODULE / 06</p><h2 data-decrypt>Terminal</h2></div>
+        <p>A tiny shell into this site. Type <code>help</code> to see what it knows, or <code>think</code> to watch the background fire.</p>
       </div>
       <div class="term panel reveal">
         <span class="scan" aria-hidden="true"></span>
@@ -729,14 +807,16 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
   <section id="contact">
     <div class="container contact">
       <div class="section-head reveal">
-        <div><p class="sec-idx">MODULE / 07</p><h2>Get in touch</h2></div>
+        <div><p class="sec-idx">MODULE / 07</p><h2 data-decrypt>Get in touch</h2></div>
       </div>
-      <p class="contact-init">&gt; initiate_contact --channel=email</p>
-      <a class="email" href="mailto:nishant.chaudhari.dev@gmail.com">nishant.chaudhari.dev@gmail.com</a>
-      <div class="contact-links">
-        <a href="https://www.linkedin.com/in/nishant-chaudhari-dev" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://github.com/Nishant-Chaudhari-Dev" target="_blank" rel="noopener">GitHub</a>
-        <a href="Nishant_Chaudhari_CV.docx" download>Download CV</a>
+      <div class="reveal">
+        <p class="contact-init">&gt; initiate_contact --channel=email</p>
+        <a class="email" href="mailto:nishant.chaudhari.dev@gmail.com">nishant.chaudhari.dev@gmail.com</a>
+        <div class="contact-links">
+          <a href="https://www.linkedin.com/in/nishant-chaudhari-dev" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://github.com/Nishant-Chaudhari-Dev" target="_blank" rel="noopener">GitHub</a>
+          <a href="Nishant_Chaudhari_Master_Resume.docx" data-resume download>Download resume</a>
+        </div>
       </div>
     </div>
   </section>
@@ -745,29 +825,28 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 
 <footer>
   <div class="container">
-    <p>© 2026 NISHANT DIPAK CHAUDHARI — BUILT FROM SCRATCH, DEPLOYED ON GITHUB PAGES.</p>
+    <p>&copy; 2026 NISHANT DIPAK CHAUDHARI / BUILT FROM SCRATCH, DEPLOYED ON GITHUB PAGES</p>
   </div>
 </footer>
 
 <script>
+var REDUCED=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FINE=window.matchMedia('(pointer:fine)').matches;
+
 /* ---------- SFX (opt-in, off by default) ---------- */
 var hudSfxEnabled=false;
 (function(){
   var btn=document.getElementById('sfxToggle');
-  var ctx=null;
+  var ac=null;
   function beep(freq,dur){
     if(!hudSfxEnabled) return;
     try{
-      if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)();
-      var o=ctx.createOscillator();
-      var g=ctx.createGain();
-      o.type='sine';
-      o.frequency.value=freq||880;
-      g.gain.value=0.05;
-      o.connect(g);g.connect(ctx.destination);
-      o.start();
-      g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(dur||0.12));
-      o.stop(ctx.currentTime+(dur||0.12));
+      if(!ac) ac=new (window.AudioContext||window.webkitAudioContext)();
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.type='sine';o.frequency.value=freq||880;g.gain.value=0.05;
+      o.connect(g);g.connect(ac.destination);o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+(dur||0.12));
+      o.stop(ac.currentTime+(dur||0.12));
     }catch(e){}
   }
   if(btn){
@@ -781,45 +860,42 @@ var hudSfxEnabled=false;
   window.__hudBeep=beep;
 })();
 
-/* ---------- boot greeting — time-of-day, safe fallback already in markup ---------- */
+/* ---------- boot greeting ---------- */
 (function(){
   try{
     var h=new Date().getHours();
     var g=h<12?'good morning':h<18?'good afternoon':'good evening';
     var el=document.getElementById('bootGreeting');
-    if(el) el.textContent='> access granted \u2014 '+g+', systems online';
+    if(el) el.textContent='> access granted. '+g+', systems online';
   }catch(e){}
 })();
 
-/* ---------- clocks: visitor local + fixed Boston time ---------- */
+/* ---------- clocks: visitor local + Boston ---------- */
 (function(){
   function two(n){return String(n).padStart(2,'0')}
-  var localEl=document.getElementById('clock');
-  var bosEl=document.getElementById('clockBos');
+  var localEl=document.getElementById('clock'),bosEl=document.getElementById('clockBos');
+  var fmt=null;
+  try{fmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){}
   function tick(){
-    try{
-      var d=new Date();
-      if(localEl) localEl.textContent=two(d.getHours())+':'+two(d.getMinutes());
-      if(bosEl){
-        var parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(d);
-        var map={};parts.forEach(function(p){map[p.type]=p.value});
-        bosEl.textContent=map.hour+':'+map.minute+':'+map.second;
-      }
-    }catch(e){}
+    var d=new Date();
+    if(localEl) localEl.textContent=two(d.getHours())+':'+two(d.getMinutes());
+    if(bosEl&&fmt){
+      var map={};fmt.formatToParts(d).forEach(function(p){map[p.type]=p.value});
+      bosEl.textContent=(map.hour==='24'?'00':map.hour)+':'+map.minute+':'+map.second;
+    }
   }
   tick();setInterval(tick,1000);
 })();
 
-/* ---------- scroll progress ("profile scan") ---------- */
+/* ---------- scroll progress ---------- */
 (function(){
-  var bar=document.getElementById('scanBar');
-  var pctEl=document.getElementById('scanPct');
+  var bar=document.getElementById('scanBar'),pctEl=document.getElementById('scanPct');
   if(!bar) return;
   function update(){
     var h=document.documentElement;
-    var scrollTop=h.scrollTop||document.body.scrollTop;
-    var scrollH=(h.scrollHeight||document.body.scrollHeight)-h.clientHeight;
-    var pct=scrollH>0?Math.min(100,Math.round((scrollTop/scrollH)*100)):0;
+    var top=h.scrollTop||document.body.scrollTop;
+    var max=(h.scrollHeight||document.body.scrollHeight)-h.clientHeight;
+    var pct=max>0?Math.min(100,Math.round(top/max*100)):0;
     bar.style.width=pct+'%';
     if(pctEl) pctEl.textContent='SCAN '+pct+'%';
   }
@@ -828,141 +904,364 @@ var hudSfxEnabled=false;
   window.addEventListener('resize',update);
 })();
 
-/* ---------- typewriter log line ---------- */
+/* ---------- typewriter ---------- */
 (function(){
   var phrases=[
-    'engineer who builds agents that actually work',
-    'multi-agent RL, RAG pipelines, evals',
-    'failure modes found, scaffolds improved',
+    'builds agents that actually work',
+    'LLM inference, gateways, distributed training',
+    'eval harnesses and failure-mode analysis',
+    'MCP tooling: probes, evals, servers',
     'currently: AgentSWE on SWE-bench Pro'
   ];
   var el=document.getElementById('typed');
   if(!el) return;
   el.textContent=phrases[0];
-  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced) return;
-  var pi=0,ci=0,del=false;
+  if(REDUCED) return;
+  var pi=0,ci=phrases[0].length,del=true;
   function tick(){
     var ph=phrases[pi];
     if(!del){el.textContent=ph.slice(0,++ci);if(ci===ph.length){del=true;setTimeout(tick,2200);return}setTimeout(tick,38)}
     else{el.textContent=ph.slice(0,--ci);if(ci===0){del=false;pi=(pi+1)%phrases.length;setTimeout(tick,300);return}setTimeout(tick,16)}
   }
-  setTimeout(tick,2400);
+  setTimeout(tick,4200);
 })();
 
-/* ---------- click target-lock reticle ---------- */
+/* ---------- text decrypt effect ---------- */
+window.__decrypt=function(el){
+  if(!el) return;
+  var orig=el.getAttribute('data-text');
+  if(!orig){orig=el.textContent;el.setAttribute('data-text',orig);el.setAttribute('aria-label',orig);}
+  if(REDUCED){el.textContent=orig;return;}
+  var glyphs='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&<>/';
+  var start=performance.now(),dur=Math.min(900,300+orig.length*30);
+  if(el.__dec) cancelAnimationFrame(el.__dec);
+  function step(now){
+    var p=Math.min(1,(now-start)/dur),reveal=Math.floor(p*orig.length),out='';
+    for(var i=0;i<orig.length;i++){
+      var ch=orig[i];
+      out+=(i<reveal||ch===' '||ch==='&')?ch:glyphs[Math.floor(Math.random()*glyphs.length)];
+    }
+    el.textContent=out;
+    if(p<1) el.__dec=requestAnimationFrame(step); else {el.textContent=orig;el.__dec=null;}
+  }
+  el.__dec=requestAnimationFrame(step);
+};
+
+/* ---------- number count-up ---------- */
+window.__countUp=function(el){
+  var target=parseInt(el.getAttribute('data-count'),10);
+  if(isNaN(target)) return;
+  var prefix=el.getAttribute('data-prefix')||'';
+  if(REDUCED){el.textContent=prefix+target;return;}
+  var start=performance.now(),dur=1000;
+  function step(now){
+    var p=Math.min(1,(now-start)/dur),e=1-Math.pow(1-p,3);
+    el.textContent=prefix+Math.round(target*e);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+};
+
+/* ---------- neural field: page-spanning network with firing cascades ---------- */
 (function(){
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var c=document.getElementById('neural');
+  if(!c||!c.getContext) return;
+  var ctx=c.getContext('2d');
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=0,H=0,builtW=0,builtH=0,layers=[],pulses=[],t=0;
+  var mouse={x:-9999,y:-9999,on:false};
+  var MAXP=260;
+  /* two depth layers: a far cyan mesh that scrolls slowly, a near amber mesh that scrolls faster */
+  var CFG=[
+    {f:0.32,area:21000,r:0.9,link:125,k:3,rgb:'69,216,255',head:'200,244,255',base:0.22,edge:0.05},
+    {f:0.68,area:11500,r:1.35,link:150,k:3,rgb:'255,180,84',head:'255,232,190',base:0.36,edge:0.075}
+  ];
+  function docH(){var d=document.documentElement,b=document.body;return Math.max(d.scrollHeight,b?b.scrollHeight:0,window.innerHeight);}
+  function sizeCanvas(){
+    W=window.innerWidth;H=window.innerHeight;
+    c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
+    c.style.width=W+'px';c.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function build(){
+    sizeCanvas();
+    var dh=docH(),mobile=W<760;
+    builtW=W;builtH=dh;pulses=[];
+    layers=CFG.map(function(L){
+      var span=H+(dh-H)*L.f+L.link*2;
+      var n=Math.min(1800,Math.round(W*span/(L.area*(mobile?1.7:1))));
+      var nodes=[],i;
+      for(i=0;i<n;i++) nodes.push({x:Math.random()*W,y:Math.random()*span-L.link,ph:Math.random()*6.2832,g:0,nb:[],sx:0,sy:0,v:false});
+      var cs=L.link,grid={};
+      for(i=0;i<n;i++){var key=Math.floor(nodes[i].x/cs)+'_'+Math.floor(nodes[i].y/cs);(grid[key]||(grid[key]=[])).push(i);}
+      var edges=[],seen={};
+      for(i=0;i<n;i++){
+        var nd=nodes[i],gx=Math.floor(nd.x/cs),gy=Math.floor(nd.y/cs),cand=[];
+        for(var ox=-1;ox<=1;ox++){for(var oy=-1;oy<=1;oy++){
+          var arr=grid[(gx+ox)+'_'+(gy+oy)];if(!arr) continue;
+          for(var j=0;j<arr.length;j++){
+            var m=arr[j];if(m===i) continue;
+            var dx=nodes[m].x-nd.x,dy=nodes[m].y-nd.y,d=dx*dx+dy*dy;
+            if(d<cs*cs) cand.push([d,m]);
+          }
+        }}
+        cand.sort(function(a,b){return a[0]-b[0]});
+        for(var q=0;q<cand.length&&q<L.k;q++){
+          var mm=cand[q][1],ek=i<mm?i+'_'+mm:mm+'_'+i;
+          if(!seen[ek]){seen[ek]=1;edges.push([i,mm]);nd.nb.push(mm);nodes[mm].nb.push(i);}
+        }
+      }
+      return {L:L,nodes:nodes,edges:edges};
+    });
+  }
+  function fire(li,ni,gen,from,out){
+    var layer=layers[li];if(!layer) return;
+    var nd=layer.nodes[ni];if(!nd) return;
+    nd.g=1;
+    if(gen<=0||REDUCED) return;
+    var dest=out||pulses;
+    for(var q=0;q<nd.nb.length;q++){
+      var m=nd.nb[q];if(m===from) continue;
+      if(dest.length>=MAXP) break;
+      if(Math.random()<0.6) dest.push({li:li,a:ni,b:m,t:0,sp:0.022+Math.random()*0.03,gen:gen-1});
+    }
+  }
+  function visibleNode(li){
+    var layer=layers[li];if(!layer||!layer.nodes.length) return -1;
+    var off=(window.scrollY||0)*layer.L.f;
+    for(var k=0;k<30;k++){
+      var i=Math.floor(Math.random()*layer.nodes.length),y=layer.nodes[i].y-off;
+      if(y>40&&y<H-40) return i;
+    }
+    return -1;
+  }
+  window.__neuralFire=function(x,y,gen){
+    var layer=layers[1];if(!layer) return;
+    var off=(window.scrollY||0)*layer.L.f,best=-1,bd=220*220;
+    for(var i=0;i<layer.nodes.length;i++){
+      var nd=layer.nodes[i],dx=nd.x-x,dy=(nd.y-off)-y,d=dx*dx+dy*dy;
+      if(d<bd){bd=d;best=i;}
+    }
+    if(best>-1) fire(1,best,gen||6,-1);
+  };
+  window.__neuralStorm=function(){
+    for(var s=0;s<16;s++){var li=s%3===0?0:1,i=visibleNode(li);if(i>-1) fire(li,i,6,-1);}
+  };
+
+  function render(){
+    if(!REDUCED) t++;
+    var sy=window.scrollY||window.pageYOffset||0;
+    ctx.clearRect(0,0,W,H);
+    for(var li=0;li<layers.length;li++){
+      var layer=layers[li],L=layer.L,nodes=layer.nodes,edges=layer.edges,off=sy*L.f,pad=L.link,i,nd,A,B;
+      for(i=0;i<nodes.length;i++){
+        nd=nodes[i];
+        nd.sx=nd.x+Math.sin(t*0.004+nd.ph)*2.4;
+        nd.sy=nd.y-off+Math.cos(t*0.0033+nd.ph)*2.4;
+        nd.v=nd.sy>-pad&&nd.sy<H+pad;
+        if(nd.g>0.003) nd.g*=0.94; else nd.g=0;
+      }
+      ctx.lineWidth=1;
+      ctx.strokeStyle='rgba('+L.rgb+','+L.edge+')';
+      ctx.beginPath();
+      for(i=0;i<edges.length;i++){
+        A=nodes[edges[i][0]];B=nodes[edges[i][1]];
+        if(!A.v||!B.v) continue;
+        ctx.moveTo(A.sx,A.sy);ctx.lineTo(B.sx,B.sy);
+      }
+      ctx.stroke();
+      for(i=0;i<edges.length;i++){
+        A=nodes[edges[i][0]];B=nodes[edges[i][1]];
+        if(!A.v||!B.v) continue;
+        var gl=Math.max(A.g,B.g);if(gl<0.05) continue;
+        ctx.strokeStyle='rgba('+L.rgb+','+(L.edge+gl*0.38).toFixed(3)+')';
+        ctx.beginPath();ctx.moveTo(A.sx,A.sy);ctx.lineTo(B.sx,B.sy);ctx.stroke();
+      }
+      var near=li===1&&FINE&&mouse.on;
+      for(i=0;i<nodes.length;i++){
+        nd=nodes[i];if(!nd.v) continue;
+        var prox=0;
+        if(near){
+          var mx=nd.sx-mouse.x,my=nd.sy-mouse.y,md=Math.sqrt(mx*mx+my*my);
+          if(md<150){
+            prox=1-md/150;
+            ctx.strokeStyle='rgba('+L.rgb+','+(prox*0.22).toFixed(3)+')';
+            ctx.beginPath();ctx.moveTo(mouse.x,mouse.y);ctx.lineTo(nd.sx,nd.sy);ctx.stroke();
+          }
+        }
+        var tw=0.65+0.35*Math.sin(t*0.02+nd.ph*3);
+        var a=Math.min(1,L.base*tw+nd.g*0.85+prox*0.35);
+        var r=L.r+nd.g*2.4+prox*0.8;
+        if(nd.g>0.25){
+          ctx.fillStyle='rgba('+L.rgb+','+(nd.g*0.16).toFixed(3)+')';
+          ctx.beginPath();ctx.arc(nd.sx,nd.sy,r*4,0,6.2832);ctx.fill();
+        }
+        ctx.fillStyle='rgba('+L.rgb+','+a.toFixed(3)+')';
+        ctx.beginPath();ctx.arc(nd.sx,nd.sy,r,0,6.2832);ctx.fill();
+      }
+    }
+    if(pulses.length){
+      var keep=[],arrived=[];
+      for(var p=0;p<pulses.length;p++){
+        var pl=pulses[p],lay=layers[pl.li];if(!lay) continue;
+        var PA=lay.nodes[pl.a],PB=lay.nodes[pl.b];
+        pl.t+=pl.sp;
+        if(pl.t>=1){arrived.push(pl);continue;}
+        keep.push(pl);
+        if(!PA.v&&!PB.v) continue;
+        var x=PA.sx+(PB.sx-PA.sx)*pl.t,y=PA.sy+(PB.sy-PA.sy)*pl.t;
+        var tt=Math.max(0,pl.t-0.2),x0=PA.sx+(PB.sx-PA.sx)*tt,y0=PA.sy+(PB.sy-PA.sy)*tt;
+        ctx.lineWidth=1.4;
+        ctx.strokeStyle='rgba('+lay.L.rgb+',0.6)';
+        ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x,y);ctx.stroke();
+        ctx.fillStyle='rgba('+lay.L.head+',0.95)';
+        ctx.beginPath();ctx.arc(x,y,1.8,0,6.2832);ctx.fill();
+      }
+      pulses=keep;
+      for(var q=0;q<arrived.length;q++) fire(arrived[q].li,arrived[q].b,arrived[q].gen,arrived[q].a);
+      ctx.lineWidth=1;
+    }
+  }
+  function loop(){render();requestAnimationFrame(loop);}
+
+  if(FINE){
+    window.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY;mouse.on=true;},{passive:true});
+    document.documentElement.addEventListener('mouseleave',function(){mouse.on=false;});
+  }
+  var rt=null;
+  window.addEventListener('resize',function(){
+    clearTimeout(rt);
+    rt=setTimeout(function(){
+      if(window.innerWidth!==builtW) build(); else sizeCanvas();
+      if(REDUCED) render();
+    },200);
+  });
+  if('ResizeObserver' in window){
+    new ResizeObserver(function(){
+      if(docH()>builtH+120){clearTimeout(rt);rt=setTimeout(function(){build();if(REDUCED) render();},250);}
+    }).observe(document.body);
+  }
+  build();
+  if(REDUCED){
+    render();
+    var rq=false;
+    window.addEventListener('scroll',function(){if(rq) return;rq=true;requestAnimationFrame(function(){rq=false;render();});},{passive:true});
+  } else {
+    loop();
+    setInterval(function(){
+      if(document.hidden) return;
+      var i=visibleNode(1);if(i>-1) fire(1,i,4+Math.floor(Math.random()*2),-1);
+      if(Math.random()<0.4){var j=visibleNode(0);if(j>-1) fire(0,j,3,-1);}
+    },850);
+  }
+})();
+
+/* ---------- click: target-lock reticle + fire the network from that point ---------- */
+(function(){
+  if(REDUCED) return;
   document.addEventListener('click',function(e){
     var r=document.createElement('div');
     r.className='lock-reticle';
-    r.style.left=e.clientX+'px';
-    r.style.top=e.clientY+'px';
+    r.style.left=e.clientX+'px';r.style.top=e.clientY+'px';
     r.setAttribute('aria-hidden','true');
     document.body.appendChild(r);
     r.addEventListener('animationend',function(){r.remove()});
+    if(window.__neuralFire) window.__neuralFire(e.clientX,e.clientY,7);
     if(window.__hudBeep) window.__hudBeep(500,.05);
   });
 })();
 
-/* ---------- cursor coordinate readout ---------- */
+/* ---------- cursor coordinates ---------- */
 (function(){
   var el=document.getElementById('coordReadout');
-  if(!el) return;
-  if(!window.matchMedia('(pointer:fine)').matches) return;
+  if(!el||!FINE) return;
   var raf=null;
   window.addEventListener('mousemove',function(e){
     if(raf) return;
     raf=requestAnimationFrame(function(){
-      el.textContent='X '+String(e.clientX).padStart(4,'0')+' \u00b7 Y '+String(e.clientY).padStart(4,'0');
+      el.textContent='X '+String(e.clientX).padStart(4,'0')+' / Y '+String(e.clientY).padStart(4,'0');
       raf=null;
     });
-  });
+  },{passive:true});
 })();
 
-/* ---------- hero HUD parallax tilt ---------- */
+/* ---------- hero HUD tilt ---------- */
 (function(){
-  var hero=document.querySelector('.hero');
-  var target=document.querySelector('.hud-wrap');
-  if(!hero||!target) return;
-  if(!window.matchMedia('(pointer:fine)').matches) return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var hero=document.querySelector('.hero'),target=document.querySelector('.hud-wrap');
+  if(!hero||!target||!FINE||REDUCED) return;
   hero.addEventListener('mousemove',function(e){
     var r=hero.getBoundingClientRect();
-    var px=(e.clientX-r.left)/r.width-0.5;
-    var py=(e.clientY-r.top)/r.height-0.5;
+    var px=(e.clientX-r.left)/r.width-0.5,py=(e.clientY-r.top)/r.height-0.5;
     target.style.transform='perspective(900px) rotateY('+(px*10).toFixed(2)+'deg) rotateX('+(-py*10).toFixed(2)+'deg)';
   });
-  hero.addEventListener('mouseleave',function(){
-    target.style.transform='perspective(900px) rotateY(0deg) rotateX(0deg)';
-  });
+  hero.addEventListener('mouseleave',function(){target.style.transform='perspective(900px) rotateY(0deg) rotateX(0deg)';});
 })();
 
-/* ---------- HUD core click — diagnostics panel + live uptime + countdown ---------- */
+/* ---------- HUD core: diagnostics, uptime, countdown ---------- */
 (function(){
-  var core=document.getElementById('hudCore');
-  var panel=document.getElementById('diagPanel');
+  var core=document.getElementById('hudCore'),panel=document.getElementById('diagPanel');
   if(!core||!panel) return;
-  function toggle(){
-    panel.hidden=!panel.hidden;
-    if(window.__hudBeep) window.__hudBeep(750,.1);
-  }
+  function toggle(){panel.hidden=!panel.hidden;if(window.__hudBeep) window.__hudBeep(750,.1);}
   core.addEventListener('click',toggle);
-  core.addEventListener('keydown',function(e){
-    if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}
-  });
-  var start=Date.now();
-  var upEl=document.getElementById('uptime');
+  core.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+  var start=Date.now(),upEl=document.getElementById('uptime');
+  function two(n){return String(n).padStart(2,'0')}
   setInterval(function(){
     if(!upEl) return;
-    var secs=Math.floor((Date.now()-start)/1000);
-    var m=String(Math.floor(secs/60)).padStart(2,'0');
-    var s=String(secs%60).padStart(2,'0');
-    upEl.textContent='00:'+m+':'+s;
+    var s=Math.floor((Date.now()-start)/1000);
+    upEl.textContent=two(Math.floor(s/3600))+':'+two(Math.floor(s/60)%60)+':'+two(s%60);
   },1000);
-
   var cdEl=document.getElementById('countdown');
   if(cdEl){
     var target=new Date(2026,10,30);
-    function updCountdown(){
-      var diff=Math.ceil((target-new Date())/86400000);
-      cdEl.textContent=diff>0?diff:'0';
-    }
-    updCountdown();
-    setInterval(updCountdown,3600000);
+    function upd(){var d=Math.ceil((target-new Date())/86400000);cdEl.textContent=d>0?d:'0';}
+    upd();setInterval(upd,3600000);
   }
 })();
 
-/* ---------- face-scan photo reveal ---------- */
+/* ---------- photo: auto-loads photo.jpg if it exists, face scan on view ---------- */
 (function(){
-  var idEl=document.getElementById('photoId');
-  if(!idEl) return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    idEl.textContent='> IDENTITY: VERIFIED \u2014 NISHANT CHAUDHARI';
-    return;
-  }
-  var sweep=document.querySelector('.scan-sweep');
-  if(sweep){
-    sweep.addEventListener('animationend',function(){
-      idEl.textContent='> IDENTITY: VERIFIED \u2014 NISHANT CHAUDHARI';
-    });
-  } else {
-    idEl.textContent='> IDENTITY: VERIFIED \u2014 NISHANT CHAUDHARI';
-  }
+  var frame=document.getElementById('photoFrame'),sweep=document.getElementById('scanSweep'),idEl=document.getElementById('photoId');
+  if(!frame) return;
+  var img=new Image();
+  img.onload=function(){img.className='photo-img';img.alt='Nishant Chaudhari';frame.insertBefore(img,sweep);};
+  img.src='photo.jpg';
+  window.__faceScan=function(){
+    if(!idEl) return;
+    if(REDUCED||!sweep){idEl.textContent='> IDENTITY VERIFIED: NISHANT CHAUDHARI';return;}
+    idEl.textContent='> IDENTITY: VERIFYING...';
+    sweep.classList.remove('run');void sweep.offsetWidth;sweep.classList.add('run');
+  };
+  if(sweep) sweep.addEventListener('animationend',function(){idEl.textContent='> IDENTITY VERIFIED: NISHANT CHAUDHARI';});
 })();
 
-/* ---------- CV download "transfer" toast ---------- */
+/* ---------- resume file: first one that exists in the repo wins ---------- */
 (function(){
-  var links=document.querySelectorAll('a[download]');
-  if(!links.length) return;
-  links.forEach(function(link){
+  /* to switch files later, change this list; a PDF dropped in with the first name is picked up automatically */
+  var CANDIDATES=['Nishant_Chaudhari_Master_Resume.pdf','Nishant_Chaudhari_Master_Resume.docx','Nishant_Chaudhari_CV.docx'];
+  var links=document.querySelectorAll('a[data-resume]');
+  if(!links.length||location.protocol==='file:'||!window.fetch) return;
+  (function tryNext(i){
+    if(i>=CANDIDATES.length) return;
+    fetch(CANDIDATES[i],{method:'HEAD',cache:'no-store'})
+      .then(function(r){
+        if(r.ok) links.forEach(function(a){a.setAttribute('href',CANDIDATES[i]);});
+        else tryNext(i+1);
+      })
+      .catch(function(){tryNext(i+1);});
+  })(0);
+})();
+
+/* ---------- resume download transfer toast ---------- */
+(function(){
+  document.querySelectorAll('a[download]').forEach(function(link){
     link.addEventListener('click',function(e){
       e.preventDefault();
-      var href=link.getAttribute('href');
-      var name=href.split('/').pop();
+      var href=link.getAttribute('href'),name=href.split('/').pop();
       var toast=document.createElement('div');
       toast.className='hud-toast';
-      toast.innerHTML='<p>&gt; TRANSFERRING '+name+'</p><div class="transfer-bar"><div class="transfer-fill"></div></div>';
+      toast.innerHTML='<p></p><div class="transfer-bar"><div class="transfer-fill"></div></div>';
+      toast.querySelector('p').textContent='> TRANSFERRING '+name;
       document.body.appendChild(toast);
       requestAnimationFrame(function(){
         toast.classList.add('show');
@@ -975,27 +1274,56 @@ var hudSfxEnabled=false;
         document.body.appendChild(a);a.click();a.remove();
         toast.querySelector('p').textContent='> TRANSFER COMPLETE';
         if(window.__hudBeep) window.__hudBeep(700,.12);
-        setTimeout(function(){
-          toast.classList.remove('show');
-          setTimeout(function(){toast.remove()},400);
-        },700);
+        setTimeout(function(){toast.classList.remove('show');setTimeout(function(){toast.remove()},400);},700);
       },750);
     });
   });
 })();
 
+/* ---------- project count + filters ---------- */
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('.proj-card'));
+  var btns=[].slice.call(document.querySelectorAll('.filter'));
+  var readout=document.getElementById('filterReadout');
+  var total=cards.length;
+  var stat=document.getElementById('statProjects');
+  if(stat){stat.setAttribute('data-count',total);stat.textContent=total;}
+  function matches(card,f){return f==='all'||(' '+card.getAttribute('data-cat')+' ').indexOf(' '+f+' ')>-1;}
+  function setReadout(n){if(readout) readout.textContent='SHOWING '+n+' OF '+total;}
+  btns.forEach(function(b){
+    var f=b.getAttribute('data-filter');
+    var fc=b.querySelector('.fc');
+    if(fc) fc.textContent=cards.filter(function(c){return matches(c,f)}).length;
+    b.addEventListener('click',function(){
+      btns.forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
+      var shown=0;
+      cards.forEach(function(c){var ok=matches(c,f);c.hidden=!ok;if(ok) shown++;});
+      setReadout(shown);
+      if(window.__hudBeep) window.__hudBeep(640,.05);
+    });
+  });
+  setReadout(total);
+})();
+
 /* ---------- terminal ---------- */
 (function(){
-  var input=document.getElementById('termInput');
-  var output=document.getElementById('termOutput');
+  var input=document.getElementById('termInput'),output=document.getElementById('termOutput');
   if(!input||!output) return;
+  function projectList(){
+    var names=[].map.call(document.querySelectorAll('.proj-card .proj-title'),function(e){return e.textContent.trim()});
+    return names.length+' projects, newest first: '+names.join(', ')+'.';
+  }
   var responses={
-    help:"available commands: about, projects, skills, experience, contact, whoami, clear",
-    about:"AI systems engineer. M.S. Applied AI @ Northeastern. Multi-agent RL, LLM pipelines, robotics.",
-    projects:"AgentSWE, TenderMind, OmegaTK RAG Assistant, Antiviral Potency Prediction, Swarm Robotics, Autonomous Cleaning Robot. See the Projects section for details.",
-    skills:"Python, PyTorch, TensorFlow, ROS2, FAISS, RAG, LLM APIs, SolidWorks, and more. See the Skills section.",
-    experience:"M.S. Applied AI (2026-), Red Hat Hackathon 2026, OpenEye/Cadence CPS projects, MOON Lab MARL research, B.S. IISER Bhopal.",
-    contact:"nishant.chaudhari.dev@gmail.com \u2014 or see the contact section below.",
+    help:"commands: about, projects, skills, experience, resume, contact, think, whoami, clear",
+    about:"AI systems engineer. MPS Applied AI @ Northeastern. LLM agents, evals, inference infrastructure. Undergrad research in MARL and robotics.",
+    projects:projectList,
+    ls:projectList,
+    skills:"LLM APIs, agents, MCP servers and eval tooling, RAG (FAISS), eval harnesses, PyTorch (DDP, FSDP2), Python. From undergrad: multi-agent RL, ROS2, Gazebo, Jetson.",
+    experience:"MPS Applied AI (2026 to present), Red Hat Hackathon (Mar 2026), OpenEye / Cadence industry projects (Jan to Apr 2026), MOON Lab MARL research (Jan 2024 to Apr 2025), DUDE Lab robotics (2023 to 2024), Chegg SME (2022 to 2025), B.S. IISER Bhopal (2021 to 2025).",
+    contact:"nishant.chaudhari.dev@gmail.com, or see the contact section below.",
+    resume:function(){var a=document.querySelector('a[data-resume]');if(a) setTimeout(function(){a.click();},300);return "starting resume transfer...";},
+    cv:function(){return responses.resume();},
+    think:function(){if(window.__neuralStorm) window.__neuralStorm();return "firing neural cascade. look behind the page.";},
     whoami:"guest",
     sudo:"nice try. permission denied.",
     coffee:"brewing... \u2615"
@@ -1012,345 +1340,154 @@ var hudSfxEnabled=false;
     var raw=input.value.trim();
     if(!raw) return;
     print('guest@nishant:~$ '+raw,'cmd-echo');
-    var cmd=raw.toLowerCase();
-    if(cmd==='clear'){ output.innerHTML=''; }
-    else if(responses[cmd]){ print(responses[cmd]); }
-    else { print("command not found: '"+raw+"' \u2014 try 'help'"); }
+    var cmd=raw.toLowerCase(),r=responses[cmd];
+    if(cmd==='clear') output.innerHTML='';
+    else if(typeof r==='function') print(r());
+    else if(r) print(r);
+    else print("command not found: '"+raw+"'. try 'help'");
     input.value='';
     if(window.__hudBeep) window.__hudBeep(600,.05);
   });
 })();
 
-/* ---------- Konami code easter egg ---------- */
+/* ---------- Konami code ---------- */
 (function(){
-  var seq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-  var pos=0;
+  var seq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'],pos=0;
   document.addEventListener('keydown',function(e){
-    var key=e.key.length===1?e.key.toLowerCase():e.key;
-    if(key===seq[pos]){
-      pos++;
-      if(pos===seq.length){ pos=0; unlock(); }
-    } else {
-      pos=(key===seq[0])?1:0;
-    }
+    var key=e.key&&e.key.length===1?e.key.toLowerCase():e.key;
+    if(key===seq[pos]){pos++;if(pos===seq.length){pos=0;unlock();}}
+    else pos=(key===seq[0])?1:0;
   });
   function unlock(){
+    if(window.__neuralStorm){window.__neuralStorm();setTimeout(window.__neuralStorm,400);}
     var toast=document.createElement('div');
     toast.className='hud-toast';
-    toast.innerHTML='<p>&gt; EASTER EGG FOUND \u2014 respect.</p>';
+    toast.innerHTML='<p>&gt; EASTER EGG FOUND. respect.</p>';
     document.body.appendChild(toast);
     requestAnimationFrame(function(){toast.classList.add('show')});
     if(window.__hudBeep) window.__hudBeep(880,.15);
-    setTimeout(function(){
-      toast.classList.remove('show');
-      setTimeout(function(){toast.remove()},400);
-    },2200);
+    setTimeout(function(){toast.classList.remove('show');setTimeout(function(){toast.remove()},400);},2200);
     var out=document.getElementById('termOutput');
-    if(out){
-      var p=document.createElement('p');
-      p.textContent="[unlocked] you've got the reflexes of an Avenger. nice.";
-      out.appendChild(p);
-      out.scrollTop=out.scrollHeight;
-    }
+    if(out){var p=document.createElement('p');p.textContent="[unlocked] you've got the reflexes of an Avenger. nice.";out.appendChild(p);out.scrollTop=out.scrollHeight;}
   }
 })();
 
-/* ---------- repeating power-on reveal — fades out of view, replays back in ---------- */
+/* ---------- materialize on enter, dematerialize on leave (repeats) ---------- */
 (function(){
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var els=document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window)){
+  function enter(el){
+    if(el.classList.contains('on')) return;
+    el.classList.remove('off');el.classList.add('on');
+    var h=el.querySelector('[data-decrypt]');if(h) window.__decrypt(h);
+    if(el.classList.contains('photo-panel')&&window.__faceScan) window.__faceScan();
+  }
+  function leave(el){
+    if(!el.classList.contains('on')) return;
+    el.classList.remove('on');el.classList.add('off');
+  }
+  if(REDUCED||!('IntersectionObserver' in window)){
     els.forEach(function(el){el.classList.add('on')});
+    if(window.__faceScan) window.__faceScan();
     return;
   }
+  /* hysteresis: enter once 10% (or 80px) is visible, leave only when fully out of view */
   var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('on');
-      } else {
-        entry.target.classList.remove('on');
+    entries.forEach(function(en){
+      if(en.isIntersecting&&(en.intersectionRatio>=0.1||en.intersectionRect.height>=80)) enter(en.target);
+      else if(!en.isIntersecting) leave(en.target);
+    });
+  },{threshold:[0,0.1,0.25,0.5]});
+  els.forEach(function(el){io.observe(el)});
+})();
+
+/* ---------- hero name decrypt after boot, stat count-up on view ---------- */
+(function(){
+  var name=document.getElementById('heroName');
+  setTimeout(function(){window.__decrypt(name);},REDUCED?0:2050);
+  var row=document.getElementById('statRow');
+  if(!row) return;
+  var nums=row.querySelectorAll('[data-count]');
+  function run(){nums.forEach(function(n){window.__countUp(n)});}
+  if(!('IntersectionObserver' in window)){run();return;}
+  var first=true;
+  new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      if(first){first=false;setTimeout(run,REDUCED?0:Math.max(0,2200-performance.now()));}
+      else run();
+    });
+  },{threshold:.4}).observe(row);
+})();
+
+/* ---------- panel spotlight + subtle tilt ---------- */
+(function(){
+  if(!FINE) return;
+  document.querySelectorAll('.panel').forEach(function(p){
+    var tilt=p.classList.contains('tilt')&&!REDUCED;
+    p.addEventListener('pointermove',function(e){
+      var r=p.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+      p.style.setProperty('--mx',x+'px');p.style.setProperty('--my',y+'px');
+      if(tilt){
+        var rx=((y/r.height)-0.5)*-4,ry=((x/r.width)-0.5)*4;
+        p.style.transform='perspective(900px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg)';
       }
     });
-  },{threshold:.15});
-  els.forEach(function(el){io.observe(el)});
+    p.addEventListener('pointerleave',function(){
+      p.style.setProperty('--mx','-400px');p.style.setProperty('--my','-400px');
+      p.style.transform='';
+    });
+  });
+})();
+
+/* ---------- scrollspy for nav ---------- */
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  var links=[].slice.call(document.querySelectorAll('nav.links a[href^="#"]')),map={};
+  links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      links.forEach(function(a){a.classList.remove('active')});
+      var a=map[en.target.id];if(a) a.classList.add('active');
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s) io.observe(s);});
 })();
 
 /* ---------- GitHub live stats ---------- */
 (function(){
-  var repoEl=document.getElementById('ghRepos');
-  var pushEl=document.getElementById('ghPush');
-  if(!repoEl && !pushEl) return;
+  var repoEl=document.getElementById('ghRepos'),pushEl=document.getElementById('ghPush');
+  if(!repoEl&&!pushEl) return;
   fetch('https://api.github.com/users/Nishant-Chaudhari-Dev')
     .then(function(r){return r.ok?r.json():null})
-    .then(function(data){
-      if(data && repoEl) repoEl.textContent=data.public_repos+' public repos';
-    }).catch(function(){ if(repoEl) repoEl.textContent='see GitHub'; });
+    .then(function(d){if(repoEl) repoEl.textContent=d?d.public_repos+' public repos':'see GitHub';})
+    .catch(function(){if(repoEl) repoEl.textContent='see GitHub';});
   fetch('https://api.github.com/users/Nishant-Chaudhari-Dev/repos?sort=pushed&per_page=1')
     .then(function(r){return r.ok?r.json():null})
     .then(function(list){
-      if(list && list[0] && pushEl){
-        var d=new Date(list[0].pushed_at);
-        var days=Math.floor((Date.now()-d.getTime())/86400000);
+      if(!pushEl) return;
+      if(list&&list[0]){
+        var days=Math.floor((Date.now()-new Date(list[0].pushed_at).getTime())/86400000);
         pushEl.textContent=days<=0?'today':days+'d ago';
-      }
-    }).catch(function(){ if(pushEl) pushEl.textContent='see GitHub'; });
+      } else pushEl.textContent='see GitHub';
+    })
+    .catch(function(){if(pushEl) pushEl.textContent='see GitHub';});
 })();
 
 /* ---------- Boston weather ---------- */
 (function(){
   var el=document.getElementById('wx');
   if(!el) return;
-  var codes={0:'clear',1:'mostly clear',2:'partly cloudy',3:'overcast',45:'foggy',48:'foggy',
-    51:'drizzle',53:'drizzle',55:'drizzle',61:'rain',63:'rain',65:'heavy rain',71:'snow',73:'snow',
-    75:'heavy snow',80:'showers',81:'showers',82:'showers',95:'storms'};
+  var codes={0:'clear',1:'mostly clear',2:'partly cloudy',3:'overcast',45:'foggy',48:'foggy',51:'drizzle',53:'drizzle',55:'drizzle',
+    61:'rain',63:'rain',65:'heavy rain',71:'snow',73:'snow',75:'heavy snow',80:'showers',81:'showers',82:'showers',95:'storms'};
   fetch('https://api.open-meteo.com/v1/forecast?latitude=42.36&longitude=-71.06&current=temperature_2m,weather_code&temperature_unit=fahrenheit')
     .then(function(r){return r.ok?r.json():null})
-    .then(function(data){
-      if(data && data.current){
-        var t=Math.round(data.current.temperature_2m);
-        var desc=codes[data.current.weather_code]||'—';
-        el.textContent=' \u00b7 '+t+'\u00b0F, '+desc.toUpperCase();
+    .then(function(d){
+      if(d&&d.current){
+        var desc=codes[d.current.weather_code];
+        el.textContent=' / '+Math.round(d.current.temperature_2m)+'\u00b0F'+(desc?', '+desc.toUpperCase():'');
       }
     }).catch(function(){});
-})();
-
-/* ---------- neural-brain hologram — dense, brain-shaped, drag to rotate, computers at the stem ---------- */
-(function(){
-  var canvas=document.getElementById('brainCanvas');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var W=280,H=430;
-  var dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr;canvas.height=H*dpr;
-  canvas.style.width=W+'px';canvas.style.height=H+'px';
-  ctx.scale(dpr,dpr);
-
-  var cx=W/2, sphereCy=140, focal=300, R=76;
-
-  /* fibonacci-sphere point shell, deformed into a brain-like blob:
-     low-frequency bump noise for gyri, a central groove for the two-hemisphere
-     look, and a squash/elongate pass for the overall silhouette */
-  function makeShell(n,radiusScale,jitterAmt,brainify){
-    var arr=[];
-    for(var i=0;i<n;i++){
-      var yv=1-(i/Math.max(1,n-1))*2;
-      var rad=Math.sqrt(Math.max(0,1-yv*yv));
-      var theta=Math.PI*(1+Math.sqrt(5))*i;
-      var ox=Math.cos(theta)*rad, oy=yv, oz=Math.sin(theta)*rad;
-      var j=1+(Math.random()-0.5)*jitterAmt;
-      ox*=j;oy*=j;oz*=j;
-      if(brainify){
-        var bump=1+0.06*Math.sin(4*ox+2*oy)+0.05*Math.cos(3*oz-oy)+0.04*Math.sin(5*oy+3*oz);
-        ox*=bump;oy*=bump;oz*=bump;
-        oy+=0.1*Math.exp(-(ox*ox)/0.05);
-        oy*=0.85; oz*=1.12;
-      }
-      arr.push({ox:ox*radiusScale,oy:oy*radiusScale,oz:oz*radiusScale,phase:Math.random()*Math.PI*2});
-    }
-    return arr;
-  }
-
-  var outer=makeShell(150,1,0.16,true);
-  var inner=makeShell(34,0.48,0.12,false);
-  var pts=outer.concat(inner);
-  var outerN=outer.length;
-
-  function d2(a,b){var dx=a.ox-b.ox,dy=a.oy-b.oy,dz=a.oz-b.oz;return dx*dx+dy*dy+dz*dz}
-  function meshEdges(list,k,offset){
-    var seen={},out=[];
-    for(var a=0;a<list.length;a++){
-      var order=[];
-      for(var b=0;b<list.length;b++){ if(a!==b) order.push([d2(list[a],list[b]),b]); }
-      order.sort(function(p,q){return p[0]-q[0]});
-      for(var m=0;m<k;m++){
-        var bIdx=order[m][1];
-        var key=a<bIdx?a+'_'+bIdx:bIdx+'_'+a;
-        if(!seen[key]){ seen[key]=true; out.push([a+offset,bIdx+offset]); }
-      }
-    }
-    return out;
-  }
-  var edges=meshEdges(outer,4,0).concat(meshEdges(inner,2,outerN));
-  /* dendrite-like spokes tying the inner core to the outer shell, so the
-     structure reads as one connected volume instead of two separate shells */
-  for(var s=0;s<26;s++){
-    var ii=outerN+Math.floor(Math.random()*inner.length);
-    var best=0,bestD=Infinity;
-    for(var oi=0;oi<outerN;oi++){
-      var dd=d2(pts[ii],pts[oi]);
-      if(dd<bestD){bestD=dd;best=oi;}
-    }
-    edges.push([ii,best]);
-  }
-
-  /* rotation is pointer-driven only — drag to spin, release to coast to a stop
-     (like Google Earth), otherwise it just sits still */
-  var ax=0.32, ay=0.18, velX=0, velY=0, dragging=false, lastX=0, lastY=0;
-  canvas.addEventListener('pointerdown',function(e){
-    dragging=true; lastX=e.clientX; lastY=e.clientY; velX=0; velY=0;
-    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
-  });
-  canvas.addEventListener('pointermove',function(e){
-    if(!dragging) return;
-    var dx=e.clientX-lastX, dy=e.clientY-lastY;
-    lastX=e.clientX; lastY=e.clientY;
-    var rdx=dx*0.006, rdy=dy*0.006;
-    ay+=rdx; ax+=rdy;
-    velX=rdx; velY=rdy;
-    if(reduced) render();
-  });
-  function endDrag(){ dragging=false; }
-  canvas.addEventListener('pointerup',endDrag);
-  canvas.addEventListener('pointercancel',endDrag);
-
-  var pulses=[];
-  function spawnPulse(){
-    if(!edges.length) return;
-    var e=edges[Math.floor(Math.random()*edges.length)];
-    pulses.push({a:e[0],b:e[1],t:0,speed:0.012+Math.random()*0.014});
-  }
-  if(!reduced){ setInterval(function(){ if(Math.random()<0.85) spawnPulse(); },420); }
-
-  function rotate(p){
-    var x=p.ox,y=p.oy,z=p.oz;
-    var y1=y*Math.cos(ax)-z*Math.sin(ax);
-    var z1=y*Math.sin(ax)+z*Math.cos(ax);
-    var x2=x*Math.cos(ay)+z1*Math.sin(ay);
-    var z2=-x*Math.sin(ay)+z1*Math.cos(ay);
-    return {x:x2,y:y1,z:z2};
-  }
-  function project(p){
-    var scale=focal/(focal+p.z*R);
-    return {x:cx+p.x*R*scale,y:sphereCy+p.y*R*scale,z:p.z,scale:scale};
-  }
-
-  var t=0;
-  function render(){
-    t+=1;
-    if(!dragging && !reduced){
-      ax+=velX; ay+=velY;
-      velX*=0.92; velY*=0.92;
-      if(Math.abs(velX)<0.00005) velX=0;
-      if(Math.abs(velY)<0.00005) velY=0;
-    }
-    ctx.clearRect(0,0,W,H);
-
-    var rot=pts.map(rotate);
-    var proj=rot.map(project);
-
-    /* depth-sort edges and nodes together so near structure correctly
-       overlaps far structure — this is what makes the inner core read as
-       genuinely inside the outer shell rather than just another layer */
-    var items=[];
-    edges.forEach(function(e){
-      var A=proj[e[0]],B=proj[e[1]];
-      items.push({type:'edge',z:(A.z+B.z)/2,A:A,B:B});
-    });
-    pts.forEach(function(p,i){ items.push({type:'node',z:proj[i].z,P:proj[i],phase:p.phase}); });
-    items.sort(function(a,b){return b.z-a.z});
-
-    items.forEach(function(it){
-      if(it.type==='edge'){
-        var op=0.07+0.22*((1-it.z)/2);
-        ctx.strokeStyle='rgba(255,180,84,'+op.toFixed(3)+')';
-        ctx.lineWidth=1;
-        ctx.beginPath();ctx.moveTo(it.A.x,it.A.y);ctx.lineTo(it.B.x,it.B.y);ctx.stroke();
-      } else {
-        var depthOp=0.18+0.5*((1-it.z)/2);
-        var flick=reduced?0.7:0.5+0.5*Math.sin(t*0.035+it.phase);
-        var op=Math.min(1,depthOp*(0.5+0.55*flick));
-        var r=1.35*it.P.scale+0.4;
-        ctx.beginPath();ctx.arc(it.P.x,it.P.y,r,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,180,84,'+op.toFixed(3)+')';
-        ctx.fill();
-      }
-    });
-
-    if(!reduced && pulses.length){
-      pulses.forEach(function(pl){
-        pl.t+=pl.speed;
-        var A=rot[pl.a],B=rot[pl.b];
-        var lp={x:A.x+(B.x-A.x)*pl.t,y:A.y+(B.y-A.y)*pl.t,z:A.z+(B.z-A.z)*pl.t};
-        var P=project(lp);
-        ctx.beginPath();ctx.arc(P.x,P.y,2.1,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,205,130,0.95)';
-        ctx.shadowColor='rgba(255,180,84,0.9)';ctx.shadowBlur=6;
-        ctx.fill();ctx.shadowBlur=0;
-      });
-      pulses=pulses.filter(function(pl){return pl.t<1});
-    }
-
-    /* spinal stem branching down into the machines it's thinking for — static,
-       drawn in fixed screen space so it never disconnects from the sphere above it */
-    var stemTop=sphereCy+R+6, branchY=stemTop+56;
-    ctx.strokeStyle='rgba(69,216,255,.34)';
-    ctx.lineWidth=1.4;
-    ctx.beginPath();
-    ctx.moveTo(cx,stemTop);
-    ctx.bezierCurveTo(cx-6,stemTop+26,cx+6,stemTop+38,cx,branchY);
-    ctx.stroke();
-    var compX=[cx-46,cx,cx+46];
-    compX.forEach(function(x){
-      ctx.beginPath();ctx.moveTo(cx,branchY);ctx.lineTo(x,branchY+20);ctx.stroke();
-    });
-    compX.forEach(function(x,idx){
-      var top=branchY+20;
-      ctx.strokeStyle='rgba(69,216,255,.5)';
-      ctx.lineWidth=1.1;
-      ctx.strokeRect(x-13,top,26,34);
-      ctx.beginPath();ctx.moveTo(x-13,top+9);ctx.lineTo(x+13,top+9);ctx.stroke();
-      var blink=reduced?0.8:0.5+0.5*Math.sin(t*0.045+idx*2.1);
-      ctx.fillStyle='rgba(255,180,84,'+(0.4+0.5*blink).toFixed(3)+')';
-      ctx.beginPath();ctx.arc(x,top+21,2,0,Math.PI*2);ctx.fill();
-    });
-
-    if(!reduced) requestAnimationFrame(render);
-  }
-  render();
-})();
-
-/* ---------- starfield with occasional data-packet streaks ---------- */
-(function(){
-  var c=document.getElementById('stars');
-  if(!c) return;
-  var ctx=c.getContext('2d');
-  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var W,H,pts=[],streaks=[];
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
-  resize();window.addEventListener('resize',resize);
-  var N=70;
-  for(var i=0;i<N;i++){
-    pts.push({x:Math.random()*2000,y:Math.random()*2000,vx:(Math.random()-.5)*.06,vy:(Math.random()-.5)*.06,r:Math.random()*1.1+.3});
-  }
-  function spawnStreak(){
-    var fromLeft=Math.random()<0.5;
-    streaks.push({x:fromLeft?-20:W+20,y:Math.random()*H,vx:fromLeft?(4+Math.random()*3):-(4+Math.random()*3),len:60});
-  }
-  if(!reduced){setInterval(function(){if(Math.random()<0.6) spawnStreak()},5000)}
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='rgba(69,216,255,0.55)';
-    for(var i=0;i<N;i++){
-      var p=pts[i];
-      if(!reduced){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0}
-      ctx.beginPath();ctx.arc(((p.x%W)+W)%W,((p.y%H)+H)%H,p.r,0,Math.PI*2);ctx.fill();
-    }
-    if(streaks.length){
-      ctx.strokeStyle='rgba(69,216,255,0.6)';
-      ctx.lineWidth=1;
-      streaks.forEach(function(s){
-        ctx.beginPath();
-        ctx.moveTo(s.x,s.y);
-        ctx.lineTo(s.x-(s.vx>0?s.len:-s.len),s.y);
-        ctx.stroke();
-        s.x+=s.vx;
-      });
-      streaks=streaks.filter(function(s){return s.x>-40 && s.x<W+40});
-    }
-    if(!reduced) requestAnimationFrame(draw);
-  }
-  draw();
 })();
 </script>
 </body>
