@@ -1,59 +1,53 @@
-# Nishant Chaudhari — Portfolio
+# Nishant Chaudhari | Portfolio
 
 Personal portfolio site, live at [nishant-chaudhari-dev.github.io](https://nishant-chaudhari-dev.github.io).
 
-A single-page site built around a sci-fi HUD look (radial system diagram, boot sequence, live clock, bracket-cornered panels) rather than a template. Covers background, projects, skills, experience, and contact info.
+A single-page site with a sci-fi HUD look: a page-spanning neural network in the background that scrolls with parallax and fires in chain reactions, a boot sequence, live clocks, a radial agent-loop diagram, project filters, and a small terminal. Covers background, projects, skills, experience, and contact info.
 
 ## Stack
 
-Plain HTML, CSS, and vanilla JS. No build step, no framework, no dependencies to install.
+Plain HTML, CSS, and vanilla JS in one file. No build step, no framework, nothing to install.
 
-- Fonts: Orbitron, Inter, and JetBrains Mono, loaded from Google Fonts
-- Everything else (the HUD diagram, animations, starfield, clock) is hand-written SVG/CSS/JS in `index.html`
+- Fonts: Orbitron, Inter, and JetBrains Mono from Google Fonts
+- Live data: GitHub API (repo count, last push) and Open-Meteo (Boston weather), both keyless. If either is down, the page shows a fallback instead of fake numbers.
 
 ## Structure
 
 ```
 .
 ├── index.html                  # the whole site
-└── Nishant_Chaudhari_CV.docx   # linked from the hero and contact sections
+├── Nishant_Chaudhari_Master_Resume.docx   # the resume behind every download button
+└── photo.jpg                   # optional; shows up in the About section automatically
 ```
 
 ## Running locally
-
-No build tools needed. Either:
-
-```bash
-open index.html
-```
-
-or serve it so relative paths behave the same as production:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-then visit `http://localhost:8000`.
+Then open `http://localhost:8000`. Opening `index.html` directly also works.
 
 ## Deployment
 
-Hosted on GitHub Pages straight from the `main` branch. Push to `main` and the live site updates automatically, usually within a minute or two.
+GitHub Pages, straight from the `main` branch. Push to `main` and the site updates within a minute or two. If the repo is ever switched to private and back, Pages gets turned off: re-enable it under Settings > Pages (deploy from `main`, root folder).
 
 ## Updating content
 
-Everything is in `index.html`, no CMS or data files:
+Everything lives in `index.html`:
 
-- **Projects** — each one is a `.proj-row` block inside `#projects`
-- **Skills** — grouped under `.skill-cat` blocks inside `#skills`
-- **Experience** — `.tl-item` blocks inside `#experience`
-- **CV** — replace `Nishant_Chaudhari_CV.docx` with an updated file of the same name, or update the filename in the two places it's linked (hero CTA and contact section)
+- **Projects:** each one is an `<article class="proj-card">` inside `#projects`, newest first. Set `data-cat` to one or more of `agents infra rag industry robotics` so the filters pick it up. The project count in the hero and the filter counts update themselves.
+- **Skills:** `.skill-cat` blocks inside `#skills`
+- **Experience:** `.tl-item` blocks inside `#experience`
+- **Photo:** add a square `photo.jpg` to the repo root
+- **Resume:** replace `Nishant_Chaudhari_Master_Resume.docx` with a file of the same name. The site checks for `Nishant_Chaudhari_Master_Resume.pdf` first, then the `.docx`, then the old `Nishant_Chaudhari_CV.docx`, and links whichever exists. To use a different name, edit the `CANDIDATES` list in `index.html`.
 
-## Accessibility notes
+## Accessibility
 
-- Respects `prefers-reduced-motion`: the boot sequence, rotating rings, radar sweep, starfield, and cursor reticle all fall back to static/off
-- Decorative elements (canvas starfield, corner brackets, boot overlay, diagram) are marked `aria-hidden`
-- Keyboard focus is visible on all interactive elements
+- Respects `prefers-reduced-motion`: the boot sequence, neural animation, reveals, decrypt text, tilt, and counters all fall back to static
+- Decorative layers are `aria-hidden` and never take clicks
+- Visible keyboard focus on every interactive element
 
 ## License
 
-Personal project, all rights reserved on content (copy, resume, project descriptions). Feel free to reference the code structure if it's useful to you.
+Content (copy, resume, project descriptions) is all rights reserved. Feel free to reference the code structure.
