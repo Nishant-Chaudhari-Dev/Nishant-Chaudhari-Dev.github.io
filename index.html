@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- GoatCounter: cookie-free visit counts. count.js skips localhost and file://, so local previews never count -->
+<script data-goatcounter="https://nishant611.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -164,9 +166,9 @@ h1.name{font-family:var(--font-head);font-weight:900;font-size:clamp(2.1rem,5vw,
 .stat b{display:block;font-family:var(--font-head);font-size:1.25rem;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
 .stat span{display:block;font-family:var(--font-mono);font-size:.66rem;color:var(--muted);margin-top:3px;letter-spacing:.04em}
 
-/* HUD DIAGRAM */
-.hud-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;transition:transform .15s ease-out}
-svg#hud{width:100%;height:auto;max-width:420px}
+/* HUD DIAGRAM: a four-step loop. JS walks the steps, lighting each node and the arc that leaves it */
+.hud-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;transition:transform .15s ease-out}
+svg#hud{width:100%;height:auto;max-width:460px}
 .ring-decor{fill:none}
 .ring-decor.outer{stroke:var(--signal-line);stroke-width:1;stroke-dasharray:2 10}
 .ring-decor.mid{stroke:var(--signal-dim);stroke-width:1;stroke-dasharray:1 8}
@@ -174,26 +176,41 @@ svg#hud{width:100%;height:auto;max-width:420px}
   .rot-cw{transform-box:fill-box;transform-origin:center;animation:spin 26s linear infinite}
   .rot-ccw{transform-box:fill-box;transform-origin:center;animation:spin-rev 34s linear infinite}
   .sweep-rot{transform-box:fill-box;transform-origin:center;animation:spin 7s linear infinite}
+  #hud.cycling .flow-arc.on{animation:flow .9s linear infinite}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes spin-rev{to{transform:rotate(-360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
 .hud-core-ring{fill:var(--void-2);stroke:var(--signal);stroke-width:2}
-.hud-core-text{font-family:var(--font-head);font-size:15px;font-weight:800;fill:var(--ink);text-anchor:middle}
+.hud-core-text{font-family:var(--font-head);font-size:18px;font-weight:800;fill:var(--ink);text-anchor:middle}
+.hud-core-step{font-family:var(--font-mono);font-size:11px;fill:var(--signal);text-anchor:middle;letter-spacing:.14em}
 #hudCore{cursor:pointer}
-.hud-badge rect{fill:var(--void-2);stroke:var(--signal-line-strong);stroke-width:1.2}
-.hud-badge text{font-family:var(--font-mono);font-size:11.5px;fill:var(--ink);text-anchor:middle;letter-spacing:.02em}
-.flow-arc{fill:none;stroke:var(--signal);stroke-width:1.6;opacity:.85}
+.hud-node{cursor:pointer}
+.hud-node rect{fill:var(--void-2);stroke:var(--signal-line-strong);stroke-width:1.2;transition:stroke .3s}
+.hud-node .n-step{font-family:var(--font-mono);font-size:13px;fill:var(--muted);text-anchor:middle;letter-spacing:.12em;transition:fill .3s}
+.hud-node .n-name{font-family:var(--font-mono);font-size:15px;fill:var(--ink);text-anchor:middle;letter-spacing:.04em}
+.hud-node.on rect{stroke:var(--signal);filter:drop-shadow(0 0 6px rgba(69,216,255,.55))}
+.hud-node.on .n-step{fill:var(--signal)}
+.hud-node.alert.on rect{stroke:var(--alert);filter:drop-shadow(0 0 6px rgba(255,180,84,.55))}
+.hud-node.alert.on .n-step{fill:var(--alert)}
+.flow-arc{fill:none;stroke:var(--signal);stroke-width:1.8;opacity:.85;transition:opacity .3s}
 .flow-arc.alert{stroke:var(--alert)}
-.flow-label{font-family:var(--font-mono);font-size:10.5px;fill:var(--muted);text-anchor:middle}
-.flow-label.alert{fill:var(--alert)}
-.hud-caption{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-align:center;max-width:36ch}
+#hud.cycling .flow-arc{opacity:.45}
+.hud-backdrop{fill:var(--void);opacity:.55}
+#hud.cycling .flow-arc.on{opacity:1;stroke-dasharray:10 4}
+.flow-label{font-family:var(--font-mono);font-size:13px;fill:var(--muted);text-anchor:middle;transition:fill .3s}
+.flow-label.on{fill:var(--ink)}
+.flow-label.alert.on{fill:var(--alert)}
+.hud-step{font-family:var(--font-mono);font-size:.8rem;color:var(--body);text-align:center;max-width:42ch;min-height:3.2em}
+.hud-step b{color:var(--signal);font-weight:500;margin-right:6px}
+.hud-caption{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-align:center;max-width:42ch}
 .diag-panel{margin-top:4px;max-width:360px;text-align:left;padding:16px 18px}
 .diag-panel[hidden]{display:none}
 .diag-line{font-family:var(--font-mono);font-size:.76rem;color:var(--signal);padding:3px 0}
 .diag-line:last-child{color:var(--body)}
 
 /* SECTIONS */
-section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative}
+section{padding:70px 0;position:relative}
 .sec-idx{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);letter-spacing:.1em;margin-bottom:10px}
 .section-head{display:grid;grid-template-columns:230px 1fr;gap:32px;margin-bottom:34px;align-items:end}
 .section-head h2{font-family:var(--font-head);font-weight:800;font-size:1.55rem;color:var(--ink);letter-spacing:.01em;white-space:nowrap}
@@ -295,6 +312,18 @@ section{padding:70px 0;border-top:1px solid var(--signal-line);position:relative
 .skill-cat ul{list-style:none}
 .skill-cat li{padding:6px 0;border-bottom:1px solid var(--signal-line);font-size:.9rem;color:var(--ink)}
 .skill-cat li:last-child{border-bottom:none}
+/* click a skill to unfold a two-line explainer; the card grows, the grid stays put */
+.skill-btn{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%;background:none;border:0;padding:0;
+  color:inherit;font:inherit;text-align:left;cursor:pointer;transition:color .15s}
+.skill-btn:hover,.skill-btn[aria-expanded="true"]{color:var(--signal)}
+.skill-mark{font-family:var(--font-mono);font-size:.8rem;color:var(--signal-line-strong);flex-shrink:0;transition:transform .25s,color .15s}
+.skill-btn:hover .skill-mark,.skill-btn[aria-expanded="true"] .skill-mark{color:var(--signal)}
+.skill-btn[aria-expanded="true"] .skill-mark{transform:rotate(45deg)}
+.skill-info{display:grid;grid-template-rows:0fr}
+.skill-info.open{grid-template-rows:1fr}
+.skill-info>div{overflow:hidden;min-height:0}
+.skill-info p{margin-top:6px;padding-left:10px;border-left:1px solid var(--signal-line-strong);font-size:.8rem;line-height:1.55;color:var(--body)}
+@media (prefers-reduced-motion:no-preference){.skill-info{transition:grid-template-rows .25s ease}}
 
 /* EXPERIENCE */
 .timeline{position:relative;padding-left:26px}
@@ -339,7 +368,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 @media (max-width:900px){
   .hero{padding-top:40px}
   .hero-grid{grid-template-columns:1fr;gap:36px}
-  svg#hud{max-width:260px}
+  svg#hud{max-width:400px}
 }
 </style>
 </head>
@@ -382,6 +411,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
     <div class="nav-status">
       <span class="status-dot" aria-hidden="true"></span>
       <span>ONLINE</span>
+      <span id="visitorsHud" hidden>VISITORS <span id="visitorCount">----</span></span>
       <span id="scanPct" class="hide-md">SCAN 0%</span>
       <span class="hide-md">LOCAL <span id="clock">--:--</span></span>
       <span>BOS <span id="clockBos">--:--:--</span></span>
@@ -432,26 +462,31 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
               <stop offset="100%" stop-color="var(--signal)" stop-opacity="0.9"/>
             </linearGradient>
           </defs>
-          <g class="rot-cw"><circle class="ring-decor outer" cx="280" cy="280" r="215"/></g>
-          <g class="rot-ccw"><circle class="ring-decor mid" cx="280" cy="280" r="190"/></g>
-          <path class="flow-arc" d="M280,125 A155,155 0 0 1 435,280" marker-end="url(#mArrow)"/>
-          <path class="flow-arc alert" d="M435,280 A155,155 0 0 1 280,435" marker-end="url(#mArrowAlert)"/>
-          <path class="flow-arc" d="M280,435 A155,155 0 0 1 125,280" marker-end="url(#mArrow)"/>
-          <path class="flow-arc" d="M125,280 A155,155 0 0 1 280,125" marker-end="url(#mArrow)"/>
-          <text class="flow-label" x="397" y="163">observe</text>
-          <text class="flow-label alert" x="397" y="397">scaffold</text>
-          <text class="flow-label" x="163" y="397">score</text>
-          <text class="flow-label" x="163" y="163">adjust</text>
-          <g class="hud-badge"><rect x="195" y="49" width="170" height="42" rx="1"/><text x="280" y="75">ENVIRONMENT</text></g>
-          <g class="hud-badge"><rect x="420" y="259" width="140" height="42" rx="1"/><text x="490" y="285">AGENT</text></g>
-          <g class="hud-badge"><rect x="195" y="469" width="170" height="42" rx="1"/><text x="280" y="495">SCAFFOLD</text></g>
-          <g class="hud-badge"><rect x="0" y="259" width="140" height="42" rx="1"/><text x="70" y="285">EVALUATOR</text></g>
-          <g class="sweep-rot"><line x1="280" y1="280" x2="280" y2="65" stroke="url(#sweepGrad)" stroke-width="2"/></g>
+          <circle class="hud-backdrop" cx="280" cy="280" r="238"/>
+          <g class="rot-cw"><circle class="ring-decor outer" cx="280" cy="280" r="252"/></g>
+          <g class="rot-ccw"><circle class="ring-decor mid" cx="280" cy="280" r="234"/></g>
+          <!-- the invisible circle centres the group's box on the hub, so the sweep pivots there -->
+          <g class="sweep-rot"><circle cx="280" cy="280" r="140" fill="none"/><line x1="280" y1="280" x2="280" y2="140" stroke="url(#sweepGrad)" stroke-width="2"/></g>
+          <!-- arc N leaves node N; the gaps keep every arrowhead clear of the boxes -->
+          <path class="flow-arc" data-step="0" d="M369.7,118.2 A185,185 0 0 1 460.3,238.4" marker-end="url(#mArrow)"/>
+          <path class="flow-arc" data-step="1" d="M460.3,321.6 A185,185 0 0 1 369.7,441.8" marker-end="url(#mArrow)"/>
+          <path class="flow-arc alert" data-step="2" d="M190.3,441.8 A185,185 0 0 1 99.7,321.6" marker-end="url(#mArrowAlert)"/>
+          <path class="flow-arc" data-step="3" d="M99.7,238.4 A185,185 0 0 1 190.3,118.2" marker-end="url(#mArrow)"/>
+          <text class="flow-label" data-step="0" x="449" y="152">task + state</text>
+          <text class="flow-label" data-step="1" x="449" y="416">actions</text>
+          <text class="flow-label alert" data-step="2" x="111" y="416">failure modes</text>
+          <text class="flow-label" data-step="3" x="111" y="152">next run</text>
+          <g class="hud-node" data-step="0"><rect x="205" y="67" width="150" height="56" rx="1"/><text class="n-step" x="280" y="89">01 OBSERVE</text><text class="n-name" x="280" y="111">ENVIRONMENT</text></g>
+          <g class="hud-node" data-step="1"><rect x="390" y="252" width="150" height="56" rx="1"/><text class="n-step" x="465" y="274">02 ACT</text><text class="n-name" x="465" y="296">AGENT</text></g>
+          <g class="hud-node" data-step="2"><rect x="205" y="437" width="150" height="56" rx="1"/><text class="n-step" x="280" y="459">03 SCORE</text><text class="n-name" x="280" y="481">EVALUATOR</text></g>
+          <g class="hud-node alert" data-step="3"><rect x="20" y="252" width="150" height="56" rx="1"/><text class="n-step" x="95" y="274">04 ADJUST</text><text class="n-name" x="95" y="296">SCAFFOLD</text></g>
           <g id="hudCore" tabindex="0" role="button" aria-label="Show core diagnostics">
-            <circle class="hud-core-ring" cx="280" cy="280" r="52"/>
-            <text class="hud-core-text" x="280" y="286">NC</text>
+            <circle class="hud-core-ring" cx="280" cy="280" r="56"/>
+            <text class="hud-core-text" x="280" y="281">NC</text>
+            <text class="hud-core-step" id="hudCoreStep" x="280" y="302">LOOP</text>
           </g>
         </svg>
+        <p class="hud-step" id="hudStep" aria-hidden="true"><b></b><span>Hover a step to see what happens there.</span></p>
         <p class="hud-caption">How an agent gets better: observe, act, get scored, adjust the scaffold. Tap the core for diagnostics.</p>
         <div class="diag-panel panel" id="diagPanel" hidden>
           <span class="scan" aria-hidden="true"></span>
@@ -495,6 +530,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
             <dt>BASED IN</dt><dd>Boston, MA</dd>
             <dt>GITHUB</dt><dd id="ghRepos">syncing...</dd>
             <dt>LAST PUSH</dt><dd id="ghPush">syncing...</dd>
+            <dt id="gcVisitorsLabel" hidden>VISITORS</dt><dd id="gcVisitors" hidden></dd>
           </dl>
         </div>
       </div>
@@ -506,7 +542,6 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
     <div class="container">
       <div class="section-head reveal">
         <div><p class="sec-idx">MODULE / 02</p><h2 data-decrypt>Projects</h2></div>
-        <p>Everything I've built, newest first. Filter by area.</p>
       </div>
 
       <div class="filters" role="group" aria-label="Filter projects">
@@ -514,6 +549,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
         <button type="button" class="filter" data-filter="agents" aria-pressed="false">Agents &amp; MCP <span class="fc"></span></button>
         <button type="button" class="filter" data-filter="infra" aria-pressed="false">LLM infra <span class="fc"></span></button>
         <button type="button" class="filter" data-filter="rag" aria-pressed="false">RAG <span class="fc"></span></button>
+        <button type="button" class="filter" data-filter="ml" aria-pressed="false">Applied ML <span class="fc"></span></button>
         <button type="button" class="filter" data-filter="industry" aria-pressed="false">Industry <span class="fc"></span></button>
         <button type="button" class="filter" data-filter="robotics" aria-pressed="false">Robotics &amp; MARL <span class="fc"></span></button>
         <span class="filter-readout" id="filterReadout" aria-live="polite"></span>
@@ -530,6 +566,24 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
           <p class="proj-stack">Python / Claude API / SWE-bench Pro / evals</p>
         </article>
 
+        <article class="proj-card panel tilt reveal" data-cat="ml rag">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-status"><i aria-hidden="true"></i>IN PROGRESS, FALL 2026</span><span class="proj-org">NORTHEASTERN, APPLIED NLP</span></div>
+          <h3 class="proj-title">mh-safety-router</h3>
+          <p class="proj-sub">Safety-first routing for a mental health support chatbot</p>
+          <p class="proj-desc">Team project building the safety layer for a client's support chatbot. Every turn, read with the three before it, gets calibrated probabilities across eight risk categories from a locally run classifier, and a policy engine routes it: a grounded supportive reply, a stricter check-in with 988 information, or a fixed crisis message with no generated text. Routing can get stricter but never looser, and an output guard screens every generated reply. A research prototype, not for real users.</p>
+          <p class="proj-stack">Python / Qwen3.5 0.8B + LoRA / RAG / FastAPI / Streamlit</p>
+        </article>
+
+        <article class="proj-card panel tilt reveal" data-cat="ml">
+          <span class="scan" aria-hidden="true"></span>
+          <div class="proj-top"><span class="proj-date">OCT 2026</span><span class="proj-org">NORTHEASTERN, AI FOR CYBERSECURITY</span></div>
+          <h3 class="proj-title">Phishing email detector</h3>
+          <p class="proj-sub">Phishing detection with adversarial hardening</p>
+          <p class="proj-desc">Trained on 81,879 public emails from six corpora. A weighted ensemble of word and character TF-IDF models plus structural features gives calibrated probabilities that drive a deliver / warn / quarantine policy: 99.4% precision and 99.1% recall at a 0.7% false-positive rate on 12,282 held-out emails. Evasion attacks and a leave-one-source-out test measure where it breaks, and a validated <code>predict_phishing()</code> module packages it for use.</p>
+          <p class="proj-stack">Python / scikit-learn / TF-IDF / probability calibration</p>
+        </article>
+
         <article class="proj-card panel tilt reveal" data-cat="agents">
           <span class="scan" aria-hidden="true"></span>
           <div class="proj-top"><span class="proj-date">SEP 2026</span><span class="proj-org">PERSONAL</span></div>
@@ -537,6 +591,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
           <p class="proj-sub">Fully local tabletop RPG with an AI game master</p>
           <p class="proj-desc">SRD 5.1 rules running entirely on a local model through llama.cpp or Ollama, with zero external API calls. A deterministic rules engine owns all state and numbers; the model only turns player text into structured actions and narrates results, which the engine validates and clamps. Solo, hot-seat, and LAN browser multiplayer.</p>
           <p class="proj-stack">Python / llama.cpp / Ollama / Server-Sent Events</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/EMBERDEEP" target="_blank" rel="noopener">Source on GitHub</a>
         </article>
 
         <article class="proj-card panel tilt reveal" data-cat="agents">
@@ -579,11 +634,12 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
 
         <article class="proj-card panel tilt reveal" data-cat="rag">
           <span class="scan" aria-hidden="true"></span>
-          <div class="proj-top"><span class="proj-date">JUN 2026</span><span class="proj-org">PERSONAL</span></div>
-          <h3 class="proj-title">rag-notes</h3>
-          <p class="proj-sub">RAG over my own coursework notes, with evals built in</p>
-          <p class="proj-desc">Local embeddings plus a hit-rate@k evaluation harness, so retrieval changes get compared with a number instead of by eye.</p>
-          <p class="proj-stack">Python / sentence-transformers / NumPy / evals</p>
+          <div class="proj-top"><span class="proj-date">MAY TO JUN 2026</span><span class="proj-org">PERSONAL</span></div>
+          <h3 class="proj-title">CourseMate (rag-notes)</h3>
+          <p class="proj-sub">Question answering over my own course notes, with retrieval evals built in</p>
+          <p class="proj-desc">Retrieval is scored on its own with hit-rate@k and MRR@k, so chunking and embedding choices are settled by numbers instead of impressions. Embeddings run locally, so the notes never leave the machine; only the final answer step calls Claude, which must answer from the retrieved chunks and cite its files. Started as the running example for an LLM systems study guide I wrote.</p>
+          <p class="proj-stack">Python / sentence-transformers / NumPy / Claude API</p>
+          <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/CourseMate" target="_blank" rel="noopener">Source on GitHub</a>
         </article>
 
         <article class="proj-card panel tilt reveal" data-cat="infra">
@@ -593,15 +649,6 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
           <p class="proj-sub">OpenAI-compatible proxy for routing and reliability</p>
           <p class="proj-desc">Five routing strategies, circuit breakers, retry and fallback, per-key rate limits and budgets (SQLite), exact and semantic response caching, and Prometheus metrics. 203 passing tests, and mutation testing caught all 18 injected bugs.</p>
           <p class="proj-stack">Python / SQLite / Prometheus / OpenAI API spec</p>
-        </article>
-
-        <article class="proj-card panel tilt reveal" data-cat="rag">
-          <span class="scan" aria-hidden="true"></span>
-          <div class="proj-top"><span class="proj-date">MAY 2026</span><span class="proj-org">PERSONAL</span></div>
-          <h3 class="proj-title">CourseMate</h3>
-          <p class="proj-sub">RAG system over my course materials</p>
-          <p class="proj-desc">Built as the running example for an LLM systems study guide I wrote covering prompting, RAG, evaluation, agents, and deployment.</p>
-          <p class="proj-stack">Python / RAG / embeddings</p>
         </article>
 
         <article class="proj-card panel tilt reveal" data-cat="agents">
@@ -644,7 +691,7 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
           <a class="proj-link" href="https://github.com/Nishant-Chaudhari-Dev/OmegaTK-RAG-Coding-Assistant" target="_blank" rel="noopener">Source on GitHub</a>
         </article>
 
-        <article class="proj-card panel tilt reveal" data-cat="industry">
+        <article class="proj-card panel tilt reveal" data-cat="industry ml">
           <span class="scan" aria-hidden="true"></span>
           <div class="proj-top"><span class="proj-date">JAN TO APR 2026</span><span class="proj-org">OPENEYE / CADENCE</span></div>
           <h3 class="proj-title">Antiviral potency prediction</h3>
@@ -681,27 +728,56 @@ footer p{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
     <div class="container">
       <div class="section-head reveal">
         <div><p class="sec-idx">MODULE / 03</p><h2 data-decrypt>Skills &amp; tools</h2></div>
+        <p>Click any item for a quick explanation of what it does.</p>
       </div>
       <div class="skills-grid">
         <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
           <h3>LLM SYSTEMS &amp; AGENTS</h3>
-          <ul><li>LLM APIs (Claude, Gemini, OpenAI-compatible)</li><li>Agents and multi-agent loops</li><li>MCP servers and clients (Python SDK)</li><li>RAG and vector search (FAISS)</li><li>Eval harnesses and ablations</li><li>Local models (llama.cpp, Ollama, IBM Granite)</li><li>Hugging Face transformers</li></ul>
+          <ul>
+            <li data-info="Calling hosted models from code: prompts, structured output, tool use, and streaming.">LLM APIs (Claude, Gemini, OpenAI-compatible)</li>
+            <li data-info="Models that plan, call tools, and check their work over many steps, alone or as a team.">Agents and multi-agent loops</li>
+            <li data-info="Model Context Protocol, the standard way to give a model tools. I build servers, clients, and test tooling.">MCP servers and clients (Python SDK)</li>
+            <li data-info="Fetch the most relevant documents for a question, then have the model answer from them.">RAG and vector search (FAISS)</li>
+            <li data-info="Score a system on fixed tasks, then remove one piece at a time to see what actually matters.">Eval harnesses and ablations</li>
+            <li data-info="Run open models on my own hardware, with no API calls and no data leaving the machine.">Local models (llama.cpp, Ollama, IBM Granite)</li>
+            <li data-info="Load pretrained models and tokenizers for inference or fine-tuning in a few lines.">Hugging Face transformers</li>
+          </ul>
         </div>
         <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
           <h3>ML &amp; INFRASTRUCTURE</h3>
-          <ul><li>PyTorch (DDP, FSDP2)</li><li>TensorFlow</li><li>scikit-learn, XGBoost</li><li>sentence-transformers</li><li>RDKit, OpenCV</li><li>Prometheus, SQLite</li></ul>
+          <ul>
+            <li data-info="Deep learning framework. DDP and FSDP2 split training across GPUs so bigger models fit and train faster.">PyTorch (DDP, FSDP2)</li>
+            <li data-info="Google's deep learning framework; I used it for on-device object detection on a robot.">TensorFlow</li>
+            <li data-info="Classical ML: linear models, trees, and boosting, plus tools for tuning and calibration.">scikit-learn, XGBoost</li>
+            <li data-info="Turn text into vectors so similar meanings sit close together, the basis of semantic search.">sentence-transformers</li>
+            <li data-info="RDKit computes chemical features from molecules; OpenCV processes images and video.">RDKit, OpenCV</li>
+            <li data-info="Prometheus tracks live service metrics like latency; SQLite is a small single-file database.">Prometheus, SQLite</li>
+          </ul>
         </div>
         <div class="skill-cat panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
           <h3>LANGUAGES &amp; TOOLS</h3>
-          <ul><li>Python</li><li>C / C++</li><li>MATLAB, Mathematica, R</li><li>Git</li><li>Podman</li><li>Flask, Streamlit</li></ul>
+          <ul>
+            <li data-info="My main language, used for nearly everything on this page: services, ML, agents, and tests.">Python</li>
+            <li data-info="Compiled, low-level languages for code that must be fast or run close to the hardware.">C / C++</li>
+            <li data-info="Numerical computing, symbolic maths, and statistics for scientific analysis.">MATLAB, Mathematica, R</li>
+            <li data-info="Version control: every change is tracked, so work can be branched, reviewed, and undone.">Git</li>
+            <li data-info="Runs apps in isolated containers, like Docker but without a background daemon.">Podman</li>
+            <li data-info="Flask builds lightweight web APIs; Streamlit turns a Python script into a web app.">Flask, Streamlit</li>
+          </ul>
         </div>
         <div class="skill-cat past panel tilt reveal">
           <span class="scan" aria-hidden="true"></span>
           <h3>ROBOTICS &amp; MARL (UNDERGRAD)</h3>
-          <ul><li>Multi-agent RL</li><li>ROS / ROS2, Gazebo</li><li>NVIDIA Jetson, Pixhawk</li><li>LiDAR, IoT</li><li>SolidWorks, Fusion 360, COMSOL</li></ul>
+          <ul>
+            <li data-info="Many agents learning at once to cooperate; I used it to make a robot swarm explore 20% better.">Multi-agent RL</li>
+            <li data-info="ROS2 connects a robot's sensors, planning, and motors; Gazebo simulates the robot first.">ROS / ROS2, Gazebo</li>
+            <li data-info="Jetson runs AI models on board a robot; Pixhawk is a flight controller for drones.">NVIDIA Jetson, Pixhawk</li>
+            <li data-info="LiDAR maps surroundings with laser distance; IoT links devices and sensors over a network.">LiDAR, IoT</li>
+            <li data-info="CAD tools for designing parts (SolidWorks, Fusion 360) and physics simulation (COMSOL).">SolidWorks, Fusion 360, COMSOL</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1197,6 +1273,40 @@ window.__countUp=function(el){
   hero.addEventListener('mouseleave',function(){target.style.transform='perspective(900px) rotateY(0deg) rotateX(0deg)';});
 })();
 
+/* ---------- HUD loop: walk the four steps; hover or tap a node to hold on it ---------- */
+(function(){
+  var svg=document.getElementById('hud'),stepEl=document.getElementById('hudStep'),coreStep=document.getElementById('hudCoreStep');
+  if(!svg||!stepEl) return;
+  var STEPS=[
+    ['01 OBSERVE','The agent reads the task and the current state of its environment.'],
+    ['02 ACT','It calls tools and edits code, leaving a trajectory of actions.'],
+    ['03 SCORE','An evaluator runs the tests and tags how the attempt failed.'],
+    ['04 ADJUST','The scaffold is changed to target that failure, and the loop runs again.']
+  ];
+  var parts=[].slice.call(svg.querySelectorAll('[data-step]'));
+  var label=stepEl.querySelector('b'),text=stepEl.querySelector('span');
+  var cur=0,timer=null,hold=null;
+  function show(i){
+    cur=i;
+    parts.forEach(function(el){el.classList.toggle('on',+el.getAttribute('data-step')===i);});
+    if(coreStep) coreStep.textContent=STEPS[i][0].slice(3);
+    label.textContent=STEPS[i][0];text.textContent=STEPS[i][1];
+  }
+  function stop(){clearInterval(timer);timer=null;}
+  function start(){
+    if(REDUCED) return;
+    stop();
+    timer=setInterval(function(){if(!document.hidden) show((cur+1)%STEPS.length);},2400);
+  }
+  svg.querySelectorAll('.hud-node').forEach(function(n){
+    var i=+n.getAttribute('data-step');
+    n.addEventListener('mouseenter',function(){stop();show(i);});
+    n.addEventListener('mouseleave',start);
+    n.addEventListener('click',function(){stop();show(i);clearTimeout(hold);hold=setTimeout(start,6000);});
+  });
+  if(!REDUCED){svg.classList.add('cycling');show(0);start();}
+})();
+
 /* ---------- HUD core: diagnostics, uptime, countdown ---------- */
 (function(){
   var core=document.getElementById('hudCore'),panel=document.getElementById('diagPanel');
@@ -1303,6 +1413,34 @@ window.__countUp=function(el){
     });
   });
   setReadout(total);
+})();
+
+/* ---------- skill explainers: one open at a time ---------- */
+(function(){
+  var items=[].slice.call(document.querySelectorAll('.skill-cat li[data-info]'));
+  var btns=[];
+  items.forEach(function(li,i){
+    var btn=document.createElement('button');
+    btn.type='button';btn.className='skill-btn';
+    btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls','skillInfo'+i);
+    var label=document.createElement('span');label.textContent=li.textContent;
+    var mark=document.createElement('span');mark.className='skill-mark';mark.setAttribute('aria-hidden','true');mark.textContent='+';
+    btn.appendChild(label);btn.appendChild(mark);
+    var info=document.createElement('div');info.className='skill-info';info.id='skillInfo'+i;
+    var inner=document.createElement('div');var p=document.createElement('p');p.textContent=li.getAttribute('data-info');
+    inner.appendChild(p);info.appendChild(inner);
+    li.textContent='';li.appendChild(btn);li.appendChild(info);
+    btns.push(btn);
+    btn.addEventListener('click',function(){
+      var open=btn.getAttribute('aria-expanded')!=='true';
+      btns.forEach(function(b){
+        var on=open&&b===btn;
+        b.setAttribute('aria-expanded',on?'true':'false');
+        document.getElementById(b.getAttribute('aria-controls')).classList.toggle('open',on);
+      });
+      if(window.__hudBeep) window.__hudBeep(open?720:520,.04);
+    });
+  });
 })();
 
 /* ---------- terminal ---------- */
@@ -1452,6 +1590,39 @@ window.__countUp=function(el){
     });
   },{rootMargin:'-45% 0px -50% 0px'});
   Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s) io.observe(s);});
+})();
+
+/* ---------- GoatCounter: click events and the public visitor count ---------- */
+(function(){
+  // one delegated listener, so links added or retargeted later still count
+  function event(path,title){
+    if(window.goatcounter&&window.goatcounter.count) window.goatcounter.count({path:path,title:title,event:true});
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a');
+    if(!a) return;
+    if(a.hasAttribute('data-resume')) event('resume-download','Resume download');
+    else if(a.classList.contains('proj-link')){
+      var card=a.closest('.proj-card'),t=card&&card.querySelector('.proj-title');
+      var name=t?t.textContent.trim():a.href;
+      event('github-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),'GitHub link: '+name);
+    }
+    else if(a.href.indexOf('mailto:')===0) event('contact-email','Email link');
+    else if(a.href.indexOf('linkedin.com')>-1) event('contact-linkedin','LinkedIn link');
+  });
+
+  // the count only shows once GoatCounter answers; until then (or if it never does) both readouts stay hidden
+  var hud=document.getElementById('visitorsHud'),hudNum=document.getElementById('visitorCount');
+  var dt=document.getElementById('gcVisitorsLabel'),dd=document.getElementById('gcVisitors');
+  fetch('https://nishant611.goatcounter.com/counter/TOTAL.json')
+    .then(function(r){return r.ok?r.json():null})
+    .then(function(d){
+      var n=d?parseInt(String(d.count).replace(/\D/g,''),10):NaN;
+      if(isNaN(n)) return;
+      if(hud&&hudNum){hudNum.textContent=String(n).padStart(4,'0');hud.hidden=false;}
+      if(dt&&dd){dd.textContent=n.toLocaleString('en-US')+' so far';dt.hidden=false;dd.hidden=false;}
+    })
+    .catch(function(){});
 })();
 
 /* ---------- GitHub live stats ---------- */

@@ -10,6 +10,15 @@ Plain HTML, CSS, and vanilla JS in one file. No build step, no framework, nothin
 
 - Fonts: Orbitron, Inter, and JetBrains Mono from Google Fonts
 - Live data: GitHub API (repo count, last push) and Open-Meteo (Boston weather), both keyless. If either is down, the page shows a fallback instead of fake numbers.
+- Analytics: [GoatCounter](https://nishant611.goatcounter.com), cookie-free, so no consent banner. The visitor count in the nav bar and the About panel stays hidden until GoatCounter answers.
+
+## Analytics
+
+The dashboard at [nishant611.goatcounter.com](https://nishant611.goatcounter.com) shows visitors, referrers, countries, and devices. Visits from `localhost` and `file://` aren't counted.
+
+- **Click events:** resume downloads (`resume-download`), each project's GitHub link (`github-<project>`), and the email and LinkedIn links (`contact-email`, `contact-linkedin`).
+- **Public counter:** needs *Settings > Allow using the visitor counter* switched on in GoatCounter. Until then the count stays hidden.
+- **Knowing who came from where:** add `?ref=<name>` to the link you share, for example `https://nishant-chaudhari-dev.github.io/?ref=acme-application`. GoatCounter lists `acme-application` as the referrer, so you can tell which application, message, or post a visit came from.
 
 ## Structure
 
@@ -36,7 +45,7 @@ GitHub Pages, straight from the `main` branch. Push to `main` and the site updat
 
 Everything lives in `index.html`:
 
-- **Projects:** each one is an `<article class="proj-card">` inside `#projects`, newest first. Set `data-cat` to one or more of `agents infra rag industry robotics` so the filters pick it up. The project count in the hero and the filter counts update themselves.
+- **Projects:** each one is an `<article class="proj-card">` inside `#projects`, newest first. Set `data-cat` to one or more of `agents infra rag ml industry robotics` so the filters pick it up. The project count in the hero and the filter counts update themselves.
 - **Skills:** `.skill-cat` blocks inside `#skills`
 - **Experience:** `.tl-item` blocks inside `#experience`
 - **Photo:** add a square `photo.jpg` to the repo root
